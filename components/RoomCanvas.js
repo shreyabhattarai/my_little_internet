@@ -68,14 +68,14 @@ const ARCADE_FOCUS_SCALE = 2.65
 const PHOTO_FRAME_FOCUS_SCALE = 2.45
 const MOBILE_ROTATE_MAX_WIDTH = 599
 const CAMERA_PAN_SPEED = MOVE_SPEED
-const PHOTO_FRAME_DISPLAY_SRC = "/images/family/bro_sis.jpg"
+const PHOTO_FRAME_DISPLAY_SRC = "/images/family/all_family.jpg"
 
 // zoom floor applied to every device so there is always room to pan or parallax
 const MIN_ZOOM_ALL_DEVICES = 1.06
 // how far the pointer can nudge the camera, in world pixels, kept small on purpose
 const POINTER_PARALLAX_STRENGTH = 46
 // smoothing factor for parallax easing, lower is smoother and slower
-const PARALLAX_LERP = 0.12
+const PARALLAX_LERP = 0.10
 // loader stays up at least this long so it does not just flash
 const MIN_LOADER_MS = 500
 // how long the loader fade out css transition runs, keep in sync with css
