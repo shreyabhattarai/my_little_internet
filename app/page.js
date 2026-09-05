@@ -110,7 +110,6 @@ export default function HomePage() {
       {/* Future addition: wardrobe and bed modals */}
       {/* {openModal === "wardrobe" && <WardrobeModal onClose={() => setOpenModal(null)} />} */}
       {/* {openModal === "bed" && <BedModal onClose={() => setOpenModal(null)} />} */}
-      {openModal === "arcade" && <ArcadeModal onClose={() => setOpenModal(null)} />}
       {/* Future addition: internet modal */}
       {/* {openModal === "brainrot" && <BrainrotModal onClose={() => setOpenModal(null)} />} */}
       {openModal === "window" && (

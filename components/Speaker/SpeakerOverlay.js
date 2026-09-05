@@ -73,6 +73,23 @@ function formatTime(totalSeconds) {
   return `${String(minutes).padStart(2, "0")}:${seconds}`
 }
 
+function parseDuration(durationLabel) {
+  if (!durationLabel || typeof durationLabel !== "string") return 0
+
+  const parts = durationLabel.split(":").map((part) => Number(part))
+  if (parts.some((value) => Number.isNaN(value))) return 0
+
+  if (parts.length === 2) {
+    return parts[0] * 60 + parts[1]
+  }
+
+  if (parts.length === 3) {
+    return parts[0] * 3600 + parts[1] * 60 + parts[2]
+  }
+
+  return 0
+}
+
 export default function SpeakerOverlay({ onClose }) {
   const mountedRef = useRef(false)
   const [playlists, setPlaylists] = useState(fallbackPlaylists)
@@ -81,12 +98,35 @@ export default function SpeakerOverlay({ onClose }) {
   const [activeTrackIndex, setActiveTrackIndex] = useState(0)
   const [playingTrackId, setPlayingTrackId] = useState(persistentPlayer.trackId)
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
-  const [statusMessage, setStatusMessage] = useState(persistentPlayer.status)
+  const [, setStatusMessage] = useState(persistentPlayer.status)
 
   const currentPlaylist = playlists.find((p) => p.id === activePlaylistId) || playlists[0]
   const currentTracks = currentPlaylist?.tracks || []
   const currentTrack = currentTracks[activeTrackIndex] || currentTracks[0]
   const isPlayingCurrent = currentTrack && playingTrackId === currentTrack.id
+  const trackDurationSeconds = parseDuration(currentTrack?.duration)
+  const progressPercent = trackDurationSeconds > 0
+    ? Math.min(100, (elapsedSeconds / trackDurationSeconds) * 100)
+    : 0
+
+  function bindAudioEvents(audio) {
+    audio.ontimeupdate = () => {
+      const nextTime = audio.currentTime || 0
+      if (mountedRef.current) {
+        setElapsedSeconds(nextTime)
+      }
+    }
+
+    audio.onended = () => {
+      persistentPlayer.trackId = null
+      persistentPlayer.status = "done"
+      if (mountedRef.current) {
+        setPlayingTrackId(null)
+        setElapsedSeconds(0)
+        setStatusMessage("done")
+      }
+    }
+  }
 
   function syncToPersistentTrack(sourcePlaylists) {
     if (!persistentPlayer.trackId) return
@@ -104,10 +144,23 @@ export default function SpeakerOverlay({ onClose }) {
   useEffect(() => {
     mountedRef.current = true
 
-    if (persistentPlayer.audio && !persistentPlayer.audio.paused) {
+    if (persistentPlayer.audio) {
+      bindAudioEvents(persistentPlayer.audio)
       setElapsedSeconds(persistentPlayer.audio.currentTime || 0)
-      setStatusMessage("playing")
+      if (!persistentPlayer.audio.paused) {
+        setPlayingTrackId(persistentPlayer.trackId)
+        setStatusMessage("playing")
+      } else {
+        setPlayingTrackId(null)
+        setStatusMessage("paused")
+      }
     }
+
+    const syncTimer = setInterval(() => {
+      if (!mountedRef.current || !persistentPlayer.audio) return
+      if (persistentPlayer.audio.paused) return
+      setElapsedSeconds(persistentPlayer.audio.currentTime || 0)
+    }, 250)
 
     let cancelled = false
 
@@ -163,6 +216,7 @@ export default function SpeakerOverlay({ onClose }) {
     return () => {
       mountedRef.current = false
       cancelled = true
+      clearInterval(syncTimer)
     }
   }, [])
 
@@ -183,20 +237,7 @@ export default function SpeakerOverlay({ onClose }) {
     persistentPlayer.audio = audio
     persistentPlayer.trackId = track.id
     audio.currentTime = 0
-    audio.ontimeupdate = () => {
-      if (mountedRef.current) {
-        setElapsedSeconds(audio.currentTime)
-      }
-    }
-    audio.onended = () => {
-      persistentPlayer.trackId = null
-      persistentPlayer.status = "done"
-      if (mountedRef.current) {
-        setPlayingTrackId(null)
-        setElapsedSeconds(0)
-        setStatusMessage("done")
-      }
-    }
+    bindAudioEvents(audio)
 
     audio.play().then(() => {
       persistentPlayer.status = "playing"
@@ -217,11 +258,26 @@ export default function SpeakerOverlay({ onClose }) {
   function handlePlayPause() {
     if (!currentTrack) return
 
-    if (isPlayingCurrent && persistentPlayer.audio) {
+    if (isPlayingCurrent && persistentPlayer.audio && !persistentPlayer.audio.paused) {
       persistentPlayer.audio.pause()
       persistentPlayer.status = "paused"
       setPlayingTrackId(null)
       setStatusMessage("paused")
+      return
+    }
+
+    if (
+      persistentPlayer.audio &&
+      persistentPlayer.trackId === currentTrack.id &&
+      persistentPlayer.audio.paused
+    ) {
+      persistentPlayer.audio.play().then(() => {
+        persistentPlayer.status = "playing"
+        setPlayingTrackId(currentTrack.id)
+        setStatusMessage("playing")
+      }).catch(() => {
+        setStatusMessage("missing audio file")
+      })
       return
     }
 
@@ -314,69 +370,84 @@ export default function SpeakerOverlay({ onClose }) {
         </div>
       </div>
 
-      <div className={styles.playlistRow}>
-        {playlists.map((playlist) => (
-          <button
-            key={playlist.id}
-            className={
-              playlist.id === activePlaylistId
-                ? styles.tapeButton + " " + styles.tapeButtonActive
-                : styles.tapeButton
-            }
-            onClick={() => setActivePlaylistId(playlist.id)}
+      <div className={styles.selectionRow}>
+        <label className={styles.picker}>
+          <span>Folder</span>
+          <select
+            value={activePlaylistId}
+            onChange={(event) => {
+              setActivePlaylistId(event.target.value)
+              setActiveTrackIndex(0)
+              setElapsedSeconds(0)
+            }}
           >
-            {playlist.label}
-          </button>
-        ))}
-      </div>
+            {playlists.map((playlist) => (
+              <option key={playlist.id} value={playlist.id}>
+                {playlist.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <div className={styles.trackStrip}>
-        {currentTracks.map((track, index) => (
-          <button
-            key={track.id}
-            className={index === activeTrackIndex ? styles.trackTab + " " + styles.trackTabActive : styles.trackTab}
-            onClick={() => selectTrack(index)}
+        <label className={styles.picker}>
+          <span>Song</span>
+          <select
+            value={currentTrack?.id || ""}
+            onChange={(event) => {
+              const selectedIndex = currentTracks.findIndex((track) => track.id === event.target.value)
+              if (selectedIndex >= 0) {
+                selectTrack(selectedIndex)
+              }
+            }}
           >
-            {index + 1}. {track.title}
-          </button>
-        ))}
+            {currentTracks.map((track, index) => (
+              <option key={track.id} value={track.id}>
+                {index + 1}. {track.title}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       <div className={styles.transportRow}>
-        <button className={styles.controlButton} onClick={handlePrev} aria-label="Previous track">
-          <IconPrev />
-        </button>
-        <button className={styles.controlButton} onClick={handlePlayPause} aria-label="Play or pause">
-          {isPlayingCurrent ? <IconPause /> : <IconPlay />}
-        </button>
-        <button className={styles.controlButton} onClick={handleNext} aria-label="Next track">
-          <IconNext />
-        </button>
-        <button
-          className={styles.controlButton}
-          onClick={() => {
-            stopPlayback()
-            setElapsedSeconds(0)
-            setStatusMessage("stopped")
-          }}
-          aria-label="Stop"
-        >
-          <IconStop />
-        </button>
-        <button
-          className={styles.controlButton}
-          onClick={handleShuffle}
-          aria-label="Shuffle from all audio folders"
-          title="Shuffle from all audio folders"
-        >
-          <IconShuffle />
-        </button>
+        <div className={styles.controlsGroup}>
+          <button className={styles.controlButton} onClick={handlePrev} aria-label="Previous track">
+            <IconPrev />
+          </button>
+          <button className={styles.controlButton} onClick={handlePlayPause} aria-label="Play or pause">
+            {isPlayingCurrent ? <IconPause /> : <IconPlay />}
+          </button>
+          <button className={styles.controlButton} onClick={handleNext} aria-label="Next track">
+            <IconNext />
+          </button>
+          <button
+            className={styles.controlButton}
+            onClick={() => {
+              stopPlayback()
+              setElapsedSeconds(0)
+              setStatusMessage("stopped")
+            }}
+            aria-label="Stop"
+          >
+            <IconStop />
+          </button>
+          <button
+            className={styles.controlButton}
+            onClick={handleShuffle}
+            aria-label="Shuffle from all audio folders"
+            title="Shuffle from all audio folders"
+          >
+            <IconShuffle />
+          </button>
+        </div>
+
+        <div className={styles.progressCluster} aria-hidden="true">
+          <div className={styles.progressRail}>
+            <span className={styles.progressFill} style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
       </div>
 
-      <footer className={styles.footerLine}>
-        <span>{statusMessage}</span>
-        <span>{currentPlaylist.description}</span>
-      </footer>
     </section>
   )
 }

@@ -5,7 +5,7 @@ import styles from "./Modal.module.css"
 
 const MODAL_TRANSITION_MS = 320
 
-export default function Modal({ title, onClose, children }) {
+export default function Modal({ title, onClose, children, closeDelay = MODAL_TRANSITION_MS }) {
   const panelRef = useRef(null)
   const closeTimerRef = useRef(null)
   const [isClosing, setIsClosing] = useState(false)
@@ -14,7 +14,7 @@ export default function Modal({ title, onClose, children }) {
   const requestClose = useCallback(() => {
     if (isClosing) return
 
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || closeDelay === 0) {
       onClose()
       return
     }
@@ -22,8 +22,8 @@ export default function Modal({ title, onClose, children }) {
     setIsClosing(true)
     closeTimerRef.current = setTimeout(() => {
       onClose()
-    }, MODAL_TRANSITION_MS)
-  }, [isClosing, onClose, prefersReducedMotion])
+    }, closeDelay)
+  }, [closeDelay, isClosing, onClose, prefersReducedMotion])
 
   useEffect(() => {
     function handleKey(e) {

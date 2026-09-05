@@ -54,8 +54,8 @@
 .displayArea {
   display: grid;
   grid-template-columns: 170px 1fr;
-  gap: 10px;
-  padding: 12px 12px 8px 12px;
+  gap: 8px;
+  padding: 10px 10px 6px 10px;
 }
 
 .timeBlock {
@@ -128,56 +128,49 @@
   background: color-mix(in srgb, var(--retro-paper) 88%, white 12%);
 }
 
-.playlistRow {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-  padding: 0 12px 10px 12px;
+.selectionRow {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+  padding: 0 10px 8px 10px;
 }
 
-.tapeButton {
-  border: 1px solid var(--retro-border);
-  border-radius: 14px;
-  background: var(--retro-paper);
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.picker span {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--retro-ink-soft);
-  font-size: 11px;
-  padding: 4px 8px;
 }
 
-.tapeButtonActive {
-  border-color: var(--retro-border);
-  background: color-mix(in srgb, var(--color-bg-soft) 84%, var(--color-panel) 16%);
-  color: var(--color-cream);
-}
-
-.trackStrip {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 0 12px 10px 12px;
-}
-
-.trackTab {
-  flex: 0 0 auto;
+.picker select {
+  width: 100%;
   border: 1px solid var(--retro-border);
   border-radius: 4px;
   background: var(--retro-paper);
-  color: var(--retro-ink-soft);
+  color: var(--retro-ink);
+  font-family: "Courier New", monospace;
   font-size: 11px;
-  padding: 5px 8px;
-}
-
-.trackTabActive {
-  border-color: var(--retro-border);
-  background: color-mix(in srgb, var(--color-bg-soft) 84%, var(--color-panel) 16%);
-  color: var(--color-cream);
+  padding: 5px 6px;
 }
 
 .transportRow {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: auto minmax(140px, 1fr);
+  align-items: center;
+  gap: 10px;
   border-top: 2px solid var(--retro-line);
-  padding: 10px 12px;
+  padding: 8px 10px;
+}
+
+.controlsGroup {
+  display: inline-flex;
+  gap: 6px;
 }
 
 .controlButton {
@@ -202,14 +195,30 @@
   fill: currentColor;
 }
 
-.footerLine {
+.progressCluster {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  border-top: 2px solid var(--retro-line);
-  color: #5c5578;
-  font-size: 11px;
-  padding: 8px 12px 11px 12px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.progressRail {
+  height: 8px;
+  border: 1px solid var(--retro-border);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--retro-screen) 70%, var(--retro-paper) 30%);
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--retro-accent) 78%, white 22%) 0%,
+    var(--retro-accent) 100%
+  );
 }
 
 @keyframes pulse {
@@ -227,25 +236,100 @@
   }
 
   .displayArea {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 10px 10px 8px 10px;
+    grid-template-columns: 120px 1fr;
+    gap: 6px;
+    padding: 8px;
   }
 
   .timeValue {
-    font-size: 24px;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+
+  .equalizer {
+    height: 18px;
+    gap: 3px;
+  }
+
+  .eqBar {
+    width: 5px;
+  }
+
+  .metaBlock,
+  .timeBlock {
+    padding: 6px;
+    border-width: 1px;
+  }
+
+  .trackLine {
+    font-size: 12px;
+    padding: 5px 6px;
+  }
+
+  .subLine {
+    margin: 5px 0;
+    font-size: 11px;
+  }
+
+  .metaChips {
+    gap: 5px;
+  }
+
+  .metaChips span {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .selectionRow {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 0 8px 6px 8px;
+  }
+
+  .picker span {
+    font-size: 9px;
+  }
+
+  .picker select {
+    font-size: 10px;
+    padding: 4px 5px;
   }
 
   .transportRow {
-    flex-wrap: wrap;
+    grid-template-columns: auto 1fr;
     gap: 6px;
-    padding: 9px 10px;
+    padding: 8px;
   }
 
-  .footerLine {
-    flex-direction: column;
-    gap: 4px;
-    padding: 7px 10px 9px 10px;
+  .controlsGroup {
+    gap: 5px;
+  }
+
+  .controlButton {
+    min-width: 32px;
+    height: 28px;
+    border-width: 1px;
+  }
+
+  .controlButton svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .progressRail {
+    height: 7px;
+  }
+}
+
+@media (max-width: 600px) {
+  .transportRow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .controlsGroup {
+    justify-content: space-between;
+    width: 100%;
   }
 }
 

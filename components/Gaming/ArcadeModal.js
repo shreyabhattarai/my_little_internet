@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import Modal from "../Modal"
-import shared from "../panelContent.module.css"
 import styles from "./ArcadeModal.module.css"
 import { arcadeGames } from "@/lib/rooms"
 
@@ -10,8 +9,8 @@ function ClickerGame() {
   const [count, setCount] = useState(0)
   return (
     <div className={styles.gameArea}>
-      <p className={shared.smallText}>score, {count}</p>
-      <button className={shared.button} onClick={() => setCount((c) => c + 1)}>
+      <p className={styles.scoreLine}>score, {count}</p>
+      <button className={styles.primaryAction} onClick={() => setCount((c) => c + 1)}>
         click me
       </button>
     </div>
@@ -55,12 +54,12 @@ function ReactionGame() {
     <div className={styles.gameArea}>
       <div
         className={styles.reactionBox}
-        style={{ background: state === "go" ? "#4c8c5a" : "#3a416b" }}
+        style={{ background: state === "go" ? "#4c8c5a" : "#2d3558" }}
         onClick={handleClick}
       >
         {message}
       </div>
-      <button className={shared.button} onClick={start} disabled={state === "waiting"}>
+      <button className={styles.primaryAction} onClick={start} disabled={state === "waiting"}>
         start
       </button>
     </div>
@@ -88,14 +87,14 @@ function GuessGame() {
 
   return (
     <div className={styles.gameArea}>
-      <p className={shared.smallText}>{message}</p>
+      <p className={styles.statusText}>{message}</p>
       <input
         type="number"
         value={guess}
         onChange={(e) => setGuess(e.target.value)}
-        style={{ width: 80, textAlign: "center", padding: 6, borderRadius: 4, border: "1px solid #3a416b", background: "#1c2140", color: "#f2ead9" }}
+        className={styles.guessInput}
       />
-      <button className={shared.button} onClick={submitGuess}>
+      <button className={styles.primaryAction} onClick={submitGuess}>
         guess
       </button>
     </div>
@@ -104,30 +103,50 @@ function GuessGame() {
 
 export default function ArcadeModal({ onClose }) {
   const [activeGame, setActiveGame] = useState(arcadeGames[0].id)
+  const [isBooted, setIsBooted] = useState(false)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsBooted(true), 220)
+    return () => clearTimeout(timeout)
+  }, [])
+
+  const activeInfo = arcadeGames.find((game) => game.id === activeGame)
 
   return (
-    <Modal title="Arcade Corner" onClose={onClose}>
-      <div className={styles.gameList}>
-        {arcadeGames.map((game) => (
-          <button
-            key={game.id}
-            className={
-              game.id === activeGame ? styles.gameButton + " " + styles.gameButtonActive : styles.gameButton
-            }
-            onClick={() => setActiveGame(game.id)}
-          >
-            {game.title}
-          </button>
-        ))}
+    <Modal title="Arcade Corner" onClose={onClose} closeDelay={0}>
+      <div className={`${styles.cabinet} ${isBooted ? styles.cabinetReady : ""}`}>
+        <div className={styles.cabinetHeader}>
+          <span className={styles.headerLabel}>pixel cabinet</span>
+          <span className={styles.headerPower}>on</span>
+        </div>
+
+        <div className={styles.screenShell}>
+          <div className={styles.gameHeaderRow}>
+            <span className={styles.gameMarker}>game select</span>
+            <span className={styles.gameMarkerAccent}>v1</span>
+          </div>
+
+          <div className={styles.gameList}>
+            {arcadeGames.map((game) => (
+              <button
+                key={game.id}
+                className={
+                  game.id === activeGame ? styles.gameButton + " " + styles.gameButtonActive : styles.gameButton
+                }
+                onClick={() => setActiveGame(game.id)}
+              >
+                {game.title}
+              </button>
+            ))}
+          </div>
+
+          <p className={styles.descriptionText}>{activeInfo?.description}</p>
+
+          {activeGame === "clicker" && <ClickerGame />}
+          {activeGame === "reaction" && <ReactionGame />}
+          {activeGame === "guess" && <GuessGame />}
+        </div>
       </div>
-
-      <p className={shared.smallText}>
-        {arcadeGames.find((g) => g.id === activeGame)?.description}
-      </p>
-
-      {activeGame === "clicker" && <ClickerGame />}
-      {activeGame === "reaction" && <ReactionGame />}
-      {activeGame === "guess" && <GuessGame />}
     </Modal>
   )
 }

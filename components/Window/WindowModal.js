@@ -27,7 +27,10 @@ export default function WindowModal({ onClose, period, overridePeriod, onOverrid
               key={option}
               type="button"
               className={shared.button}
-              onClick={() => onOverridePeriod(option)}
+              onClick={() => {
+                onOverridePeriod(option)
+                onClose()
+              }}
               aria-pressed={active}
               style={active ? { borderColor: "var(--color-lamp)", color: "var(--color-lamp)" } : undefined}
             >
