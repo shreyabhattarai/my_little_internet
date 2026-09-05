@@ -11,7 +11,7 @@
 
   width: 100%;
   max-width: 640px;
-  max-height: min(46vh, 440px);
+  max-height: none;
   background: var(--retro-bg);
   border: 2px solid var(--retro-border);
   border-radius: 10px;
@@ -223,7 +223,6 @@
 
 @media (max-width: 760px) {
   .panel {
-    max-height: min(48vh, 470px);
     border-width: 1px;
   }
 
@@ -252,6 +251,6 @@
 
 @media (max-height: 760px) {
   .panel {
-    max-height: min(54vh, 380px);
+    border-width: 1px;
   }
 }

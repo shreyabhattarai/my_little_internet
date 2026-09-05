@@ -582,9 +582,9 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
 
   const zoom = speakerFocused
     ? SPEAKER_FOCUS_SCALE
-    : isComputerTransitioning
+    : computerFocused
       ? COMPUTER_FOCUS_SCALE
-      : isPhotoFrameTransitioning
+      : photoFrameFocused
         ? PHOTO_FRAME_FOCUS_SCALE
         : responsiveZoom
   const focusTarget =

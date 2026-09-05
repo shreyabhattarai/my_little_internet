@@ -18,7 +18,7 @@ export default function ComputerModal({ onClose }) {
   }
 
   return (
-    <Modal title="Computer, fake desktop" onClose={onClose}>
+    <Modal title="My Computer" onClose={onClose}>
       <div className={styles.tabRow}>
         {desktopApps.map((app) => (
           <button
