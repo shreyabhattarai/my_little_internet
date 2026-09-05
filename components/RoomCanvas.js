@@ -76,6 +76,10 @@ const MIN_ZOOM_ALL_DEVICES = 1.06
 const POINTER_PARALLAX_STRENGTH = 46
 // smoothing factor for parallax easing, lower is smoother and slower
 const PARALLAX_LERP = 0.12
+// loader stays up at least this long so it does not just flash
+const MIN_LOADER_MS = 500
+// how long the loader fade out css transition runs, keep in sync with css
+const LOADER_FADE_MS = 420
 
 function getDeviceZoom(width, height) {
   if (width > 1366) return MIN_ZOOM_ALL_DEVICES
@@ -144,7 +148,7 @@ function hasFocusedComponent({
   )
 }
 
-export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day", reducedMotion }) {
+export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day", reducedMotion, onReady }) {
   const canvasRef = useRef(null)
   const wrapperRef = useRef(null)
   const stageRef = useRef(null)
@@ -160,8 +164,11 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const focusReturnRef = useRef({ x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 })
   const keysRef = useRef({})
   const imagesRef = useRef({})
+  const hasNotifiedReadyRef = useRef(false)
   // bump this to force a re-render when camera position changes outside react state
   const [, forceRender] = useReducer((n) => n + 1, 0)
+  const [assetsReady, setAssetsReady] = useState(false)
+  const [loaderVisible, setLoaderVisible] = useState(true)
   const [speakerFocused, setSpeakerFocused] = useState(false)
   const [showSpeakerOverlay, setShowSpeakerOverlay] = useState(false)
   const [speakerClosing, setSpeakerClosing] = useState(false)
@@ -512,6 +519,8 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
 
   useEffect(() => {
     let cancelled = false
+    let readyTimeout = null
+    const loadStart = performance.now()
     const sources = [
       IMAGE_SOURCES.room,
       ...DECOR.map((item) => item.src),
@@ -529,12 +538,32 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       for (const [src, image] of entries) {
         if (image) imagesRef.current[src] = image
       }
+
+      // hold the loader for a minimum time so fast loads do not just flash
+      const elapsed = performance.now() - loadStart
+      const remaining = Math.max(MIN_LOADER_MS - elapsed, 0)
+      readyTimeout = setTimeout(() => {
+        if (cancelled) return
+        setAssetsReady(true)
+        if (!hasNotifiedReadyRef.current) {
+          hasNotifiedReadyRef.current = true
+          onReady?.()
+        }
+      }, remaining)
     })
 
     return () => {
       cancelled = true
+      if (readyTimeout) clearTimeout(readyTimeout)
     }
   }, [])
+
+  // unmount the loader only after its fade out transition finishes
+  useEffect(() => {
+    if (!assetsReady) return
+    const timeout = setTimeout(() => setLoaderVisible(false), LOADER_FADE_MS)
+    return () => clearTimeout(timeout)
+  }, [assetsReady])
 
   // Main draw and update loop
   useEffect(() => {
@@ -921,7 +950,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     }
   }
 
-  return (
+return (
     <div className={styles.wrapper} ref={wrapperRef}>
       <div className={styles.stage} ref={stageRef} style={stageStyle} aria-hidden={shouldShowRotatePrompt}>
         <canvas
@@ -991,6 +1020,67 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
         >
           {BACK_TO_ROOM_LABEL}
         </button>
+      ) : null}
+      {loaderVisible ? (
+        <div
+          className={
+            assetsReady
+              ? styles.loaderOverlay + " " + styles.loaderHidden
+              : styles.loaderOverlay
+          }
+          role="status"
+          aria-live="polite"
+        >
+          {/* Fire sparks floating in background */}
+          {!reducedMotion ? (
+            <div className={styles.sparksContainer} aria-hidden="true">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <span key={i} className={styles.spark} />
+              ))}
+            </div>
+          ) : null}
+          <div className={styles.loaderContent}>
+            {/* Subtle OM background symbol */}
+            <div
+              className={
+                reducedMotion
+                  ? styles.loaderOm + " " + styles.loaderStill
+                  : styles.loaderOm
+              }
+              aria-hidden="true"
+            >
+              ॐ
+            </div>
+            <svg
+              className={
+                reducedMotion
+                  ? styles.loaderDiya + " " + styles.loaderStill
+                  : styles.loaderDiya
+              }
+              viewBox="0 0 60 74"
+              aria-hidden="true"
+            >
+              <ellipse cx="30" cy="60" rx="25" ry="8" className={styles.diyaBase} />
+              <path
+                d="M30 47 C21 39 23 27 30 18 C37 27 39 39 30 47 Z"
+                className={styles.diyaFlame}
+              />
+            </svg>
+            <p className={styles.loaderText}>Drawing assets</p>
+            <div
+              className={
+                reducedMotion
+                  ? styles.loaderDots + " " + styles.loaderDotsStatic
+                  : styles.loaderDots
+              }
+              aria-hidden="true"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   )

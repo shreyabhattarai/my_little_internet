@@ -31,6 +31,8 @@ export default function HomePage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFullscreenSupported, setIsFullscreenSupported] = useState(false)
   const [isFullscreenPreferenceEnabled, setIsFullscreenPreferenceEnabled] = useState(true)
+  // true once the room has finished loading its assets, gates the fullscreen button
+  const [isRoomReady, setIsRoomReady] = useState(false)
   // Future addition:
   // const [counterClicks, setCounterClicks] = useState(0)
   // const drawerClicksRef = useRef(0)
@@ -175,6 +177,10 @@ export default function HomePage() {
     await requestFullscreen()
   }
 
+  function handleRoomReady() {
+    setIsRoomReady(true)
+  }
+
   // Future addition:
   // function handleDrawerClick() {
   //   drawerClicksRef.current += 1
@@ -188,7 +194,7 @@ export default function HomePage() {
 
   return (
     <main className={styles.page}>
-      {isFullscreenSupported && (
+      {isFullscreenSupported && isRoomReady && (
         <button
           type="button"
           className={styles.fullscreenToggle}
@@ -208,6 +214,7 @@ export default function HomePage() {
         onZoneModal={handleZoneModal}
         onZoneUseless={handleZoneUseless}
         period={activePeriod}
+        onReady={handleRoomReady}
       />
 
       {openModal === "computer" && <ComputerModal onClose={() => setOpenModal(null)} />}
