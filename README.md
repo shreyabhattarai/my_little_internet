@@ -1,70 +1,82 @@
 # My Little Internet
 
-A playful explorable personal website. Not a portfolio, a small
-digital world built around one life.
+My Little Internet is a small interactive personal website built with Next.js. It presents a browser-based room or digital home where users can explore objects, trigger playful interactions, browse fake desktop content, and discover hidden details.
 
-## Getting started
+## Overview
 
-```
+This project is designed as an expressive, self-contained digital space rather than a conventional portfolio. It combines a canvas-based room layout, modal content panels, ambient UI, and a few hidden easter eggs.
+
+## Features
+
+- A navigable room scene with keyboard and pointer controls
+- Interactive zones for music, photos, desk content, books, and arcade-like moments
+- Desktop style panels and overlays for simulated browsing and personal content
+- Customizable content driven by the files in the lib directory
+- Responsive UI and accessibility-friendly navigation patterns
+- A lightweight Next.js app with plain CSS modules and no heavy game engine
+
+## Tech Stack
+
+- Next.js 14
+- React 18
+- CSS Modules
+- HTML5 Canvas
+
+## Project Structure
+
+- app contains the app entry and page layout
+- components contains reusable UI and modal components
+- lib contains world data, content, and behavior definitions
+- public contains images, audio, and static assets
+
+## Getting Started
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Run the app in development mode:
+
+```bash
 npm run dev
 ```
 
-Then open http://localhost:3000
+Open http://localhost:3000 in your browser.
 
-To build for production
+## Production Build
 
-```
+```bash
 npm run build
 npm start
 ```
 
-## How to make it yours
+## Customization
 
-All content lives in the lib folder, not in the components. Edit
-these files to change what the site says without touching any UI
-code.
+Most of the app content is controlled through the library files, especially:
 
-- lib/worldConfig.js, the rooms, zones, object positions, movement
-  speed, and the secret key sequence
-- lib/mood.js, the current status snapshot shown in the top bar
-- lib/photos.js, photo entries and captions, point src at real
-  images in public/assets/images
-- lib/music.js, playlists and tracks, point src at real audio files
-  in public/assets/audio
-- lib/feed.js, the short life feed entries
-- lib/secrets.js, hidden content revealed through easter eggs
-- lib/useless.js, pointless interaction responses and trash contents
-- lib/computer.js, the fake desktop notes and internet links
-- lib/rooms.js, bookshelf, wardrobe, bed, and arcade content
-- lib/brainrot.js, the memes and nonsense area content
+- lib/worldConfig.js for room layout and interactive zones
+- lib/music.js for playlists and audio references
+- lib/photos.js for gallery entries and image sources
+- lib/feed.js for personal updates and notes
+- lib/secrets.js for hidden discoveries
+- lib/computer.js for fake desktop content and links
+- lib/rooms.js for the room composition and content blocks
+
+Update these files to personalize the experience without changing the core app structure.
 
 ## Controls
 
-- Arrow keys or w a s d to walk
-- Click or tap anywhere to walk there, or tap an object to use it
-  directly
-- Enter or space to interact with whatever is nearby
-- Try the up up down down left right left right sequence somewhere
-  on the page
-- Click the drawer a handful of times
+- Move with arrow keys or W A S D
+- Click or tap to navigate to a location
+- Press Enter or Space to interact with nearby items
+- Explore the room for hidden interactions and secret sequences
 
-## Accessibility
+## Notes
 
-A text menu button sits in the bottom left corner. It opens every
-room and object as a plain list, no character movement required.
-The site respects the reduced motion system setting and all
-interactive elements are reachable by keyboard.
+The project includes placeholder assets in public. Replace these files with your own media and update the corresponding source paths in the lib files to make the experience match your own content.
 
-## Notes on assets
+## License
 
-The public/assets folder ships with a handful of placeholder SVG
-photos and no real audio files. Drop real images and audio into the
-matching subfolders and update the paths inside lib/photos.js and
-lib/music.js.
-
-## Stack
-
-Next.js App Router, React, plain CSS Modules, and the native HTML5
-Canvas API for the explorable room. No Tailwind, no game engine
-dependency, everything is plain and easy to edit.
+This project is intended for personal or experimental use unless otherwise specified by the repository owner.
