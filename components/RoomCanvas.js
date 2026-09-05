@@ -935,7 +935,6 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
           {BACK_TO_ROOM_LABEL}
         </button>
       ) : null}
-      {!shouldShowRotatePrompt ? <span className={styles.periodBadge}>{period}</span> : null}
     </div>
   )
 }

@@ -1,9 +1,8 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import styles from "./page.module.css"
 import RoomCanvas from "@/components/RoomCanvas"
-import AccessibilityDrawer from "@/components/Drawer/AccessibilityDrawer"
 import ComputerModal from "@/components/Computer/ComputerModal"
 import MusicPlayer from "@/components/MusicPlayer"
 import LifeFeed from "@/components/LifeFeed"
@@ -21,18 +20,48 @@ import { SECRET_KEY_SEQUENCE, getEffectivePeriod, getTimePeriod } from "@/lib/wo
 import { getRandomResponse } from "@/lib/useless"
 import { secretKeySequenceReward, hiddenRoom } from "@/lib/secrets"
 
+const FULLSCREEN_STORAGE_KEY = "mli-fullscreen-enabled"
+
 export default function HomePage() {
   const [openModal, setOpenModal] = useState(null)
   const [popup, setPopup] = useState(null)
   const [secret, setSecret] = useState(null)
   const [realTimePeriod, setRealTimePeriod] = useState("day")
   const [windowOverride, setWindowOverride] = useState("auto")
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [isFullscreenSupported, setIsFullscreenSupported] = useState(false)
+  const [isFullscreenPreferenceEnabled, setIsFullscreenPreferenceEnabled] = useState(true)
   // Future addition:
   // const [counterClicks, setCounterClicks] = useState(0)
   // const drawerClicksRef = useRef(0)
   const sequenceProgressRef = useRef(0)
   const activePeriod =
     windowOverride === "auto" ? realTimePeriod : getEffectivePeriod(windowOverride, new Date())
+
+  const requestFullscreen = useCallback(async () => {
+    if (!document.fullscreenEnabled || !document.documentElement.requestFullscreen) {
+      return false
+    }
+
+    try {
+      await document.documentElement.requestFullscreen()
+      return true
+    } catch {
+      return false
+    }
+  }, [])
+
+  const exitFullscreen = useCallback(async () => {
+    if (!document.exitFullscreen || !document.fullscreenElement) {
+      return
+    }
+
+    try {
+      await document.exitFullscreen()
+    } catch {
+      // Ignore exit errors and keep button usable.
+    }
+  }, [])
 
   useEffect(() => {
     function updatePeriod() {
@@ -42,6 +71,53 @@ export default function HomePage() {
     const id = setInterval(updatePeriod, 60000)
     return () => clearInterval(id)
   }, [])
+
+  useEffect(() => {
+    const canFullscreen = Boolean(
+      document.fullscreenEnabled &&
+        document.documentElement.requestFullscreen &&
+        document.exitFullscreen
+    )
+
+    const savedPreference = window.localStorage.getItem(FULLSCREEN_STORAGE_KEY)
+    const shouldAutoEnter = savedPreference !== "false"
+
+    setIsFullscreenSupported(canFullscreen)
+    setIsFullscreenPreferenceEnabled(shouldAutoEnter)
+    setIsFullscreen(Boolean(document.fullscreenElement))
+
+    function handleFullscreenChange() {
+      setIsFullscreen(Boolean(document.fullscreenElement))
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
+
+    if (canFullscreen && shouldAutoEnter && !document.fullscreenElement) {
+      void requestFullscreen()
+    }
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange)
+    }
+  }, [requestFullscreen])
+
+  useEffect(() => {
+    if (!isFullscreenSupported || isFullscreen || !isFullscreenPreferenceEnabled) {
+      return
+    }
+
+    async function attemptFullscreenOnInteraction() {
+      await requestFullscreen()
+    }
+
+    window.addEventListener("pointerdown", attemptFullscreenOnInteraction, { once: true })
+    window.addEventListener("keydown", attemptFullscreenOnInteraction, { once: true })
+
+    return () => {
+      window.removeEventListener("pointerdown", attemptFullscreenOnInteraction)
+      window.removeEventListener("keydown", attemptFullscreenOnInteraction)
+    }
+  }, [isFullscreen, isFullscreenPreferenceEnabled, isFullscreenSupported, requestFullscreen])
 
   useEffect(() => {
     document.body.dataset.theme = activePeriod
@@ -82,6 +158,23 @@ export default function HomePage() {
     setPopup(getRandomResponse(uselessId))
   }
 
+  async function handleFullscreenToggle() {
+    if (!isFullscreenSupported) {
+      return
+    }
+
+    if (document.fullscreenElement || isFullscreen) {
+      window.localStorage.setItem(FULLSCREEN_STORAGE_KEY, "false")
+      setIsFullscreenPreferenceEnabled(false)
+      await exitFullscreen()
+      return
+    }
+
+    window.localStorage.setItem(FULLSCREEN_STORAGE_KEY, "true")
+    setIsFullscreenPreferenceEnabled(true)
+    await requestFullscreen()
+  }
+
   // Future addition:
   // function handleDrawerClick() {
   //   drawerClicksRef.current += 1
@@ -95,13 +188,27 @@ export default function HomePage() {
 
   return (
     <main className={styles.page}>
+      {isFullscreenSupported && (
+        <button
+          type="button"
+          className={styles.fullscreenToggle}
+          onClick={handleFullscreenToggle}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          aria-pressed={isFullscreen}
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+        >
+          <span
+            className={isFullscreen ? styles.fullscreenIconExit : styles.fullscreenIconEnter}
+            aria-hidden="true"
+          />
+        </button>
+      )}
+
       <RoomCanvas
         onZoneModal={handleZoneModal}
         onZoneUseless={handleZoneUseless}
         period={activePeriod}
       />
-
-      <AccessibilityDrawer onOpenModal={handleZoneModal} />
 
       {openModal === "computer" && <ComputerModal onClose={() => setOpenModal(null)} />}
       {openModal === "music" && <MusicPlayer onClose={() => setOpenModal(null)} />}
