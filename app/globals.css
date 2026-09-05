@@ -1,0 +1,108 @@
+/* Design tokens for my little internet */
+/* A small nighttime bedroom world, warm lamp light against deep indigo */
+
+:root {
+  --color-bg: #14172c;
+  --color-bg-soft: #1c2140;
+  --color-panel: #232a4f;
+  --color-panel-border: #3a416b;
+  --color-cream: #f2ead9;
+  --color-lamp: #f4c95d;
+  --color-pink: #e8a0bf;
+  --color-teal: #6fa8ad;
+  --color-muted: #9aa1c2;
+  --color-danger: #d9705a;
+
+  --font-body: "Space Mono", "Courier New", monospace;
+  --font-pixel: "Press Start 2P", "Space Mono", monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}
+
+body[data-theme="day"] {
+  --color-bg: #d9e9ff;
+  --color-bg-soft: #edf5ff;
+  --color-panel: #ffffff;
+  --color-panel-border: #9bb9df;
+  --color-cream: #1f2d45;
+  --color-lamp: #c06b1c;
+  --color-pink: #be6f93;
+  --color-teal: #29728f;
+  --color-muted: #4f6f96;
+}
+
+body[data-theme="dusk"] {
+  --color-bg: #3a1f2f;
+  --color-bg-soft: #5a2a38;
+  --color-panel: #6a3240;
+  --color-panel-border: #be7f52;
+  --color-cream: #ffe5ca;
+  --color-lamp: #ffc462;
+  --color-pink: #ff9a8f;
+  --color-teal: #f5a770;
+  --color-muted: #f3c199;
+}
+
+body[data-theme="night"] {
+  --color-bg: #14172c;
+  --color-bg-soft: #1c2140;
+  --color-panel: #232a4f;
+  --color-panel-border: #3a416b;
+  --color-cream: #f2ead9;
+  --color-lamp: #f4c95d;
+  --color-pink: #e8a0bf;
+  --color-teal: #6fa8ad;
+  --color-muted: #9aa1c2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+a {
+  color: var(--color-lamp);
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-lamp);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,257 @@
+.panel {
+  --retro-bg: color-mix(in srgb, var(--color-panel) 70%, var(--color-cream) 30%);
+  --retro-border: var(--color-panel-border);
+  --retro-ink: var(--color-bg);
+  --retro-ink-soft: var(--color-muted);
+  --retro-accent: var(--color-lamp);
+  --retro-line: color-mix(in srgb, var(--color-panel-border) 60%, var(--color-cream) 40%);
+  --retro-paper: color-mix(in srgb, var(--color-cream) 78%, white 22%);
+  --retro-screen: color-mix(in srgb, var(--color-bg) 84%, var(--color-panel) 16%);
+  --retro-screen-text: color-mix(in srgb, var(--color-lamp) 62%, var(--color-cream) 38%);
+
+  width: 100%;
+  max-width: 640px;
+  max-height: min(46vh, 440px);
+  background: var(--retro-bg);
+  border: 2px solid var(--retro-border);
+  border-radius: 10px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.36);
+  color: var(--retro-ink);
+  overflow: hidden;
+  font-family: "Courier New", monospace;
+}
+
+.chromeBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--retro-accent) 65%, white 35%) 0%,
+    var(--retro-accent) 100%
+  );
+  border-bottom: 2px solid var(--retro-border);
+  padding: 8px 10px;
+}
+
+.brand {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.closeButton {
+  width: 28px;
+  height: 24px;
+  border: 2px solid var(--retro-border);
+  border-radius: 4px;
+  background: var(--retro-paper);
+  color: var(--retro-ink);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.displayArea {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 10px;
+  padding: 12px 12px 8px 12px;
+}
+
+.timeBlock {
+  border: 2px solid var(--retro-border);
+  border-radius: 4px;
+  background: var(--retro-screen);
+  color: var(--retro-screen-text);
+  padding: 8px;
+}
+
+.timeValue {
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.equalizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 26px;
+}
+
+.eqBar {
+  width: 6px;
+  height: 5px;
+  background: var(--retro-accent);
+  border-radius: 1px;
+}
+
+.eqBarAnimated {
+  animation: pulse 0.72s linear infinite alternate;
+}
+
+.metaBlock {
+  border: 2px solid var(--retro-border);
+  border-radius: 4px;
+  background: var(--retro-paper);
+  padding: 8px;
+}
+
+.trackLine {
+  margin: 0;
+  background: var(--retro-screen);
+  color: var(--retro-screen-text);
+  border: 1px solid var(--retro-border);
+  border-radius: 2px;
+  padding: 6px 8px;
+  font-size: 14px;
+}
+
+.subLine {
+  margin: 8px 0;
+  color: var(--retro-ink-soft);
+  font-size: 12px;
+}
+
+.metaChips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.metaChips span {
+  border: 1px solid var(--retro-border);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--retro-paper) 88%, white 12%);
+}
+
+.playlistRow {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 0 12px 10px 12px;
+}
+
+.tapeButton {
+  border: 1px solid var(--retro-border);
+  border-radius: 14px;
+  background: var(--retro-paper);
+  color: var(--retro-ink-soft);
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+.tapeButtonActive {
+  border-color: var(--retro-border);
+  background: color-mix(in srgb, var(--color-bg-soft) 84%, var(--color-panel) 16%);
+  color: var(--color-cream);
+}
+
+.trackStrip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 0 12px 10px 12px;
+}
+
+.trackTab {
+  flex: 0 0 auto;
+  border: 1px solid var(--retro-border);
+  border-radius: 4px;
+  background: var(--retro-paper);
+  color: var(--retro-ink-soft);
+  font-size: 11px;
+  padding: 5px 8px;
+}
+
+.trackTabActive {
+  border-color: var(--retro-border);
+  background: color-mix(in srgb, var(--color-bg-soft) 84%, var(--color-panel) 16%);
+  color: var(--color-cream);
+}
+
+.transportRow {
+  display: flex;
+  gap: 8px;
+  border-top: 2px solid var(--retro-line);
+  padding: 10px 12px;
+}
+
+.controlButton {
+  border: 2px solid var(--retro-border);
+  border-radius: 3px;
+  background: var(--retro-paper);
+  color: var(--retro-ink);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  min-width: 40px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controlButton svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.footerLine {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 2px solid var(--retro-line);
+  color: #5c5578;
+  font-size: 11px;
+  padding: 8px 12px 11px 12px;
+}
+
+@keyframes pulse {
+  0% {
+    height: 6px;
+  }
+  100% {
+    height: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .panel {
+    max-height: min(48vh, 470px);
+    border-width: 1px;
+  }
+
+  .displayArea {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 10px 8px 10px;
+  }
+
+  .timeValue {
+    font-size: 24px;
+  }
+
+  .transportRow {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 9px 10px;
+  }
+
+  .footerLine {
+    flex-direction: column;
+    gap: 4px;
+    padding: 7px 10px 9px 10px;
+  }
+}
+
+@media (max-height: 760px) {
+  .panel {
+    max-height: min(54vh, 380px);
+  }
+}

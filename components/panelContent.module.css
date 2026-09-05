@@ -1,0 +1,84 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  border: 1px solid var(--color-panel-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  background: var(--color-bg-soft);
+}
+
+.itemTitle {
+  font-weight: 700;
+  color: var(--color-cream);
+  margin: 0 0 4px 0;
+  font-size: 14px;
+}
+
+.itemNote {
+  color: var(--color-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--color-teal);
+  border: 1px solid var(--color-teal);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-bottom: 6px;
+}
+
+.smallText {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.button {
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-panel-border);
+  color: var(--color-cream);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.button:hover {
+  border-color: var(--color-lamp);
+}
+
+.buttonRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.photoThumb {
+  border: 1px solid var(--color-panel-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.photoThumb img {
+  width: 100%;
+  display: block;
+}

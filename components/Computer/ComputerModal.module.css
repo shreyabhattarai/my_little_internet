@@ -1,0 +1,46 @@
+.tabRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--color-panel-border);
+  padding-bottom: 10px;
+}
+
+.tabButton {
+  background: transparent;
+  border: 1px solid var(--color-panel-border);
+  color: var(--color-muted);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.tabButtonActive {
+  border-color: var(--color-lamp);
+  color: var(--color-cream);
+}
+
+.trashRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--color-panel-border);
+  font-size: 13px;
+}
+
+.trashButton {
+  background: transparent;
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.emptyState {
+  color: var(--color-muted);
+  font-size: 13px;
+  padding: 10px 0;
+}
