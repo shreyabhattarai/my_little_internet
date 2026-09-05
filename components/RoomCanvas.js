@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
 import styles from "./RoomCanvas.module.css"
 import SpeakerOverlay from "./Speaker/SpeakerOverlay"
 import ComputerOverlay from "./Computer/ComputerOverlay"
@@ -70,12 +70,19 @@ const MOBILE_ROTATE_MAX_WIDTH = 599
 const CAMERA_PAN_SPEED = MOVE_SPEED
 const PHOTO_FRAME_DISPLAY_SRC = "/images/family/bro_sis.jpg"
 
+// zoom floor applied to every device so there is always room to pan or parallax
+const MIN_ZOOM_ALL_DEVICES = 1.06
+// how far the pointer can nudge the camera, in world pixels, kept small on purpose
+const POINTER_PARALLAX_STRENGTH = 46
+// smoothing factor for parallax easing, lower is smoother and slower
+const PARALLAX_LERP = 0.12
+
 function getDeviceZoom(width, height) {
-  if (width > 1366) return 1
+  if (width > 1366) return MIN_ZOOM_ALL_DEVICES
 
   // Compute zoom from room-to-screen ratios and stop once either axis is matched.
   const zoomToMatchAxis = Math.min(WORLD_WIDTH / width, WORLD_HEIGHT / height)
-  return clamp(zoomToMatchAxis, 1, 1.24)
+  return clamp(zoomToMatchAxis, MIN_ZOOM_ALL_DEVICES, 1.24)
 }
 
 function loadImage(src) {
@@ -115,22 +122,6 @@ function pointInZone(x, y, zone) {
   return x >= zone.x && x <= zone.x + zone.width && y >= zone.y && y <= zone.y + zone.height
 }
 
-function nearestZone(x, y) {
-  let closest = null
-  let closestDist = Infinity
-  for (const zone of ZONES) {
-    const cx = zone.x + zone.width / 2
-    const cy = zone.y + zone.height / 2
-    const dist = Math.hypot(cx - x, cy - y)
-    const reach = Math.max(zone.width, zone.height) / 2 + 46
-    if (dist < reach && dist < closestDist) {
-      closest = zone
-      closestDist = dist
-    }
-  }
-  return closest
-}
-
 function hasFocusedComponent({
   speakerFocused,
   speakerClosing,
@@ -160,6 +151,8 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const posRef = useRef({ x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 })
   const hasInteractedRef = useRef(false)
   const dragRef = useRef({ active: false, moved: false, pointerId: null, lastX: 0, lastY: 0 })
+  const pointerParallaxRef = useRef({ x: 0, y: 0 })
+  const pointerParallaxTargetRef = useRef({ x: 0, y: 0 })
   const speakerCloseTimerRef = useRef(null)
   const computerCloseTimerRef = useRef(null)
   const photoFrameCloseTimerRef = useRef(null)
@@ -167,6 +160,8 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const focusReturnRef = useRef({ x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 })
   const keysRef = useRef({})
   const imagesRef = useRef({})
+  // bump this to force a re-render when camera position changes outside react state
+  const [, forceRender] = useReducer((n) => n + 1, 0)
   const [speakerFocused, setSpeakerFocused] = useState(false)
   const [showSpeakerOverlay, setShowSpeakerOverlay] = useState(false)
   const [speakerClosing, setSpeakerClosing] = useState(false)
@@ -566,16 +561,32 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
         dy = 0
       }
 
+      // tracks whether anything changed this frame so we only re-render when needed
+      let needsRender = false
+
       if (dx !== 0 || dy !== 0) {
         hasInteractedRef.current = true
         const len = Math.hypot(dx, dy) || 1
         posRef.current.x += (dx / len) * CAMERA_PAN_SPEED * dt
         posRef.current.y += (dy / len) * CAMERA_PAN_SPEED * dt
+        needsRender = true
       }
 
       // Soft clamp to keep camera center inside world even before zoom constraints are applied.
       posRef.current.x = clamp(posRef.current.x, 0, WORLD_WIDTH)
       posRef.current.y = clamp(posRef.current.y, 0, WORLD_HEIGHT)
+
+      // ease pointer parallax toward its target, small step each frame
+      const curP = pointerParallaxRef.current
+      const targetP = pointerParallaxTargetRef.current
+      const nextX = curP.x + (targetP.x - curP.x) * PARALLAX_LERP
+      const nextY = curP.y + (targetP.y - curP.y) * PARALLAX_LERP
+      if (Math.abs(nextX - curP.x) > 0.02 || Math.abs(nextY - curP.y) > 0.02) {
+        pointerParallaxRef.current = { x: nextX, y: nextY }
+        needsRender = true
+      }
+
+      if (needsRender) forceRender()
 
       draw(ctx)
 
@@ -682,10 +693,16 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const responsiveZoom = shouldShowRotatePrompt ? 1 : getDeviceZoom(screenSize.width, screenSize.height)
   const useResponsiveCamera =
     !isSpeakerTransitioning && !isComputerTransitioning && !isPhotoFrameTransitioning && !isArcadeTransitioning && responsiveZoom > 1
-  const responsiveCenter = useResponsiveCamera
+  const baseResponsiveCenter = useResponsiveCamera
     ? hasInteractedRef.current
       ? posRef.current
       : deskCenter || computerCenter
+    : null
+  // pointer parallax only applies while idle over the zoomed room, not mid drag or focus
+  const parallaxActive = useResponsiveCamera && !dragRef.current.active && !isAnyFocusActive
+  const parallax = parallaxActive ? pointerParallaxRef.current : { x: 0, y: 0 }
+  const responsiveCenter = baseResponsiveCenter
+    ? { x: baseResponsiveCenter.x + parallax.x, y: baseResponsiveCenter.y + parallax.y }
     : null
   const activeCenter = isClosingFocus ? focusReturnRef.current : (focusedCenter || responsiveCenter)
 
@@ -721,9 +738,16 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const minCenterY = visibleWorldHeight / 2
   const maxCenterY = WORLD_HEIGHT - visibleWorldHeight / 2
 
-  if (activeCenter === posRef.current) {
+  // keep the persisted camera position valid within the pannable bounds
+  if (hasInteractedRef.current) {
     posRef.current.x = clamp(posRef.current.x, minCenterX, maxCenterX)
     posRef.current.y = clamp(posRef.current.y, minCenterY, maxCenterY)
+  }
+
+  // clamp whatever center is actually used for this render, parallax included
+  if (activeCenter) {
+    activeCenter.x = clamp(activeCenter.x, minCenterX, maxCenterX)
+    activeCenter.y = clamp(activeCenter.y, minCenterY, maxCenterY)
   }
 
   const animateCamera =
@@ -803,6 +827,27 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     posRef.current.x -= deltaX * worldPerScreenPixelX
     posRef.current.y -= deltaY * worldPerScreenPixelY
     hasInteractedRef.current = true
+    forceRender()
+  }
+
+  // subtle camera nudge that follows the mouse, mouse only, not touch
+  function updatePointerParallax(e) {
+    if (e.pointerType !== "mouse") return
+    if (shouldShowRotatePrompt || isAnyFocusActive || zoom <= 1) {
+      pointerParallaxTargetRef.current = { x: 0, y: 0 }
+      return
+    }
+
+    const wrapper = wrapperRef.current
+    if (!wrapper) return
+    const rect = wrapper.getBoundingClientRect()
+    const nx = clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1)
+    const ny = clamp(((e.clientY - rect.top) / rect.height) * 2 - 1, -1, 1)
+
+    pointerParallaxTargetRef.current = {
+      x: nx * POINTER_PARALLAX_STRENGTH,
+      y: ny * POINTER_PARALLAX_STRENGTH
+    }
   }
 
   function handlePointerDown(e) {
@@ -818,18 +863,24 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
 
   function handlePointerMove(e) {
     const drag = dragRef.current
-    if (!drag.active || drag.pointerId !== e.pointerId) return
 
-    const deltaX = e.clientX - drag.lastX
-    const deltaY = e.clientY - drag.lastY
-    drag.lastX = e.clientX
-    drag.lastY = e.clientY
+    if (drag.active) {
+      if (drag.pointerId !== e.pointerId) return
 
-    if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
-      drag.moved = true
+      const deltaX = e.clientX - drag.lastX
+      const deltaY = e.clientY - drag.lastY
+      drag.lastX = e.clientX
+      drag.lastY = e.clientY
+
+      if (Math.abs(deltaX) > 1 || Math.abs(deltaY) > 1) {
+        drag.moved = true
+      }
+
+      panByScreenDelta(deltaX, deltaY)
+      return
     }
 
-    panByScreenDelta(deltaX, deltaY)
+    updatePointerParallax(e)
   }
 
   function handlePointerEnd(e) {
@@ -838,6 +889,11 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       drag.active = false
       drag.pointerId = null
     }
+  }
+
+  function handlePointerLeaveCanvas() {
+    if (dragRef.current.active) return
+    pointerParallaxTargetRef.current = { x: 0, y: 0 }
   }
 
   function handleCanvasClick(e) {
@@ -878,6 +934,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerEnd}
           onPointerCancel={handlePointerEnd}
+          onPointerLeave={handlePointerLeaveCanvas}
           onClick={handleCanvasClick}
           role="img"
           aria-label="An explorable room with furniture and hidden interactions, use the accessibility drawer for a text version"
