@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react"
 import styles from "./SpeakerOverlay.module.css"
-import { playlists as fallbackPlaylists } from "@/lib/music"
+import {
+  getDefaultPlaylistId,
+  pickRandomTrackFromPlaylist,
+  playlists as fallbackPlaylists
+} from "@/lib/music"
+import { persistentSpeakerPlayer } from "@/lib/speakerPlayer"
 
-const persistentPlayer = {
-audio: null,
-trackId: null,
-status: "ready"
-}
+const persistentPlayer = persistentSpeakerPlayer
 
 function IconPrev() {
 return ( <svg viewBox="0 0 24 24" aria-hidden="true"> <rect x="4" y="5" width="2" height="14" rx="1" /> <path d="M18 6L8 12L18 18V6Z" /> </svg>
@@ -37,6 +38,11 @@ return ( <svg viewBox="0 0 24 24" aria-hidden="true"> <rect x="7" y="7" width="1
 
 function IconShuffle() {
 return ( <svg viewBox="0 0 24 24" aria-hidden="true"> <path d="M16 7H21V2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M21 2L13 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M5 5L10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M16 17H21V22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M21 22L13 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M5 19L10 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> </svg>
+)
+}
+
+function IconLoop() {
+return ( <svg viewBox="0 0 24 24" aria-hidden="true"> <path d="M17 2L21 6L17 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M21 6H9C6.8 6 5 7.8 5 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M7 22L3 18L7 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M3 18H15C17.2 18 19 16.2 19 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> </svg>
 )
 }
 
@@ -75,7 +81,7 @@ const mountedRef = useRef(false)
 const [playlists, setPlaylists] = useState(fallbackPlaylists)
 const [allTracks, setAllTracks] = useState([])
 const [activePlaylistId, setActivePlaylistId] = useState(
-fallbackPlaylists[0]?.id || ""
+getDefaultPlaylistId(fallbackPlaylists)
 )
 const [activeTrackIndex, setActiveTrackIndex] = useState(0)
 const [playingTrackId, setPlayingTrackId] = useState(
@@ -86,6 +92,9 @@ persistentPlayer.audio?.currentTime || 0
 )
 const [durationSeconds, setDurationSeconds] = useState(
 persistentPlayer.audio?.duration || 0
+)
+const [isLoopEnabled, setIsLoopEnabled] = useState(
+Boolean(persistentPlayer.audio?.loop)
 )
 
 const currentPlaylist =
@@ -137,6 +146,8 @@ audio.onloadedmetadata = () => {
   if (Number.isFinite(audio.duration)) {
     setDurationSeconds(audio.duration)
   }
+
+  setIsLoopEnabled(Boolean(audio.loop))
 }
 
 audio.onended = () => {
@@ -187,6 +198,28 @@ if (persistentPlayer.audio) {
 
 }
 
+function applyDefaultSelection(sourcePlaylists) {
+const fallbackId = getDefaultPlaylistId(sourcePlaylists)
+const selection = pickRandomTrackFromPlaylist(
+  sourcePlaylists,
+  fallbackId
+)
+
+setActivePlaylistId(selection?.playlistId || fallbackId)
+setActiveTrackIndex(selection?.trackIndex || 0)
+
+if (!selection || persistentPlayer.userOverridden) {
+  return
+}
+
+playTrack(selection.track, {
+  loop: true,
+  userOverride: false
+})
+
+setIsLoopEnabled(true)
+}
+
 useEffect(() => {
 mountedRef.current = true
 
@@ -226,7 +259,7 @@ async function loadLibrary() {
       if (persistentPlayer.trackId) {
         syncTrack(data.playlists)
       } else {
-        setActivePlaylistId(data.playlists[0].id)
+        applyDefaultSelection(data.playlists)
       }
 
       return
@@ -251,9 +284,7 @@ function useFallbackLibrary() {
   if (persistentPlayer.trackId) {
     syncTrack(fallbackPlaylists)
   } else {
-    setActivePlaylistId(
-      fallbackPlaylists[0]?.id || ""
-    )
+    applyDefaultSelection(fallbackPlaylists)
   }
 }
 
@@ -290,10 +321,19 @@ setDurationSeconds(0)
 
 }
 
-function playTrack(track) {
+function playTrack(track, options = {}) {
+const { loop = isLoopEnabled, userOverride = true } = options
+
+if (!track) return
+
+if (userOverride) {
+  persistentPlayer.userOverridden = true
+}
+
 stopPlayback()
 
 const audio = new Audio(track.src)
+audio.loop = loop
 
 persistentPlayer.audio = audio
 persistentPlayer.trackId = track.id
@@ -341,6 +381,8 @@ if (autoplay && track) {
 function handlePlayPause() {
 if (!currentTrack) return
 
+persistentPlayer.userOverridden = true
+
 const audio = persistentPlayer.audio
 
 if (
@@ -385,6 +427,8 @@ setElapsedSeconds(nextTime)
 function handlePrev() {
 if (!currentTracks.length) return
 
+persistentPlayer.userOverridden = true
+
 const nextIndex =
   (activeTrackIndex - 1 + currentTracks.length) %
   currentTracks.length
@@ -396,6 +440,8 @@ selectTrack(nextIndex, isPlaying)
 function handleNext() {
 if (!currentTracks.length) return
 
+persistentPlayer.userOverridden = true
+
 const nextIndex =
   (activeTrackIndex + 1) % currentTracks.length
 
@@ -405,6 +451,8 @@ selectTrack(nextIndex, isPlaying)
 
 function handleShuffle() {
 if (!allTracks.length) return
+
+persistentPlayer.userOverridden = true
 
 const track =
   allTracks[Math.floor(Math.random() * allTracks.length)]
@@ -426,6 +474,17 @@ if (playlist) {
 
 playTrack(track)
 
+}
+
+function handleLoopToggle() {
+persistentPlayer.userOverridden = true
+
+const nextLoop = !isLoopEnabled
+setIsLoopEnabled(nextLoop)
+
+if (persistentPlayer.audio) {
+  persistentPlayer.audio.loop = nextLoop
+}
 }
 
 return ( <section
@@ -518,6 +577,8 @@ className={`${styles.statusLamp} ${
       <select
         value={activePlaylistId}
         onChange={(event) => {
+          persistentPlayer.userOverridden = true
+
           if (persistentPlayer.audio) {
             stopPlayback()
           }
@@ -542,6 +603,8 @@ className={`${styles.statusLamp} ${
       <select
         value={currentTrack?.id || ""}
         onChange={(event) => {
+          persistentPlayer.userOverridden = true
+
           const index = currentTracks.findIndex(
             (track) =>
               track.id === event.target.value
@@ -588,7 +651,10 @@ className={`${styles.statusLamp} ${
       </button>
 
       <button
-        onClick={stopPlayback}
+        onClick={() => {
+          persistentPlayer.userOverridden = true
+          stopPlayback()
+        }}
         aria-label="Stop"
       >
         <IconStop />
@@ -600,6 +666,16 @@ className={`${styles.statusLamp} ${
         title="Shuffle"
       >
         <IconShuffle />
+      </button>
+
+      <button
+        className={isLoopEnabled ? styles.loopButtonActive : undefined}
+        onClick={handleLoopToggle}
+        aria-label={isLoopEnabled ? "Disable loop" : "Enable loop"}
+        aria-pressed={isLoopEnabled}
+        title={isLoopEnabled ? "Loop on" : "Loop off"}
+      >
+        <IconLoop />
       </button>
     </div>
   </div>

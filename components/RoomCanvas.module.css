@@ -25,6 +25,44 @@
   will-change: transform;
 }
 
+.musicNotesLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.musicNote {
+  position: absolute;
+  left: calc(var(--note-x, 0) * 1px);
+  top: calc(var(--note-y, 0) * 1px);
+  color: color-mix(in srgb, var(--color-lamp) 86%, white 14%);
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 0 8px rgba(255, 214, 120, 0.7);
+  animation: speakerNoteFloat var(--duration, 5s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes speakerNoteFloat {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(0.7) rotate(-3deg);
+  }
+  18% {
+    opacity: 0.95;
+  }
+  65% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift-x, 10px), -68px, 0) scale(1.08) rotate(7deg);
+  }
+}
+
 .speakerOverlayAnchor {
   position: absolute;
   transform: translateX(-50%) scale(var(--speaker-overlay-scale, 1));

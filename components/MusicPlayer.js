@@ -3,15 +3,26 @@
 import { useEffect, useRef, useState } from "react"
 import Modal from "./Modal"
 import styles from "./MusicPlayer.module.css"
-import { playlists } from "@/lib/music"
+import {
+  getDefaultPlaylistId,
+  pickRandomTrackFromPlaylist,
+  playlists
+} from "@/lib/music"
 
 export default function MusicPlayer({ onClose }) {
-  const [activePlaylist, setActivePlaylist] = useState(playlists[0].id)
+  const [activePlaylist, setActivePlaylist] = useState(getDefaultPlaylistId(playlists))
   const [playingTrackId, setPlayingTrackId] = useState(null)
-  const [statusMessage, setStatusMessage] = useState("audio is off, tap a track to try it")
+  const [statusMessage, setStatusMessage] = useState("loading default lo fi track")
   const audioRef = useRef(null)
 
   useEffect(() => {
+    const defaultSelection = pickRandomTrackFromPlaylist(playlists, getDefaultPlaylistId(playlists))
+
+    if (defaultSelection) {
+      setActivePlaylist(defaultSelection.playlistId)
+      playTrack(defaultSelection.track, { loop: true })
+    }
+
     return () => {
       if (audioRef.current) {
         audioRef.current.pause()
@@ -22,7 +33,9 @@ export default function MusicPlayer({ onClose }) {
 
   const currentPlaylist = playlists.find((p) => p.id === activePlaylist)
 
-  function handlePlay(track) {
+  function playTrack(track, options = {}) {
+    const { loop = false } = options
+
     if (audioRef.current) {
       audioRef.current.pause()
     }
@@ -34,6 +47,7 @@ export default function MusicPlayer({ onClose }) {
     }
 
     const audio = new Audio(track.src)
+    audio.loop = loop
     audioRef.current = audio
     audio.play().catch(() => {
       setStatusMessage("no real audio file yet for " + track.title + ", drop one into public assets audio")
@@ -41,6 +55,10 @@ export default function MusicPlayer({ onClose }) {
     audio.addEventListener("ended", () => setPlayingTrackId(null))
     setPlayingTrackId(track.id)
     setStatusMessage("now playing " + track.title)
+  }
+
+  function handlePlay(track) {
+    playTrack(track, { loop: false })
   }
 
   return (
@@ -54,7 +72,14 @@ export default function MusicPlayer({ onClose }) {
                 ? styles.categoryButton + " " + styles.categoryButtonActive
                 : styles.categoryButton
             }
-            onClick={() => setActivePlaylist(p.id)}
+            onClick={() => {
+              if (audioRef.current) {
+                audioRef.current.pause()
+                audioRef.current = null
+                setPlayingTrackId(null)
+              }
+              setActivePlaylist(p.id)
+            }}
           >
             {p.label}
           </button>

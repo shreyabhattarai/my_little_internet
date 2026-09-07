@@ -18,6 +18,8 @@ import SecretModal from "@/components/SecretModal"
 import { SECRET_KEY_SEQUENCE, getEffectivePeriod, getTimePeriod } from "@/lib/worldConfig"
 import { getRandomResponse } from "@/lib/useless"
 import { secretKeySequenceReward, hiddenRoom } from "@/lib/secrets"
+import { playlists as fallbackPlaylists } from "@/lib/music"
+import { startDefaultSpeakerLoop } from "@/lib/speakerPlayer"
 
 const FULLSCREEN_STORAGE_KEY = "mli-fullscreen-enabled"
 
@@ -36,6 +38,7 @@ export default function HomePage() {
   // const [counterClicks, setCounterClicks] = useState(0)
   // const drawerClicksRef = useRef(0)
   const sequenceProgressRef = useRef(0)
+  const defaultAudioStartedRef = useRef(false)
   const activePeriod =
     windowOverride === "auto" ? realTimePeriod : getEffectivePeriod(windowOverride, new Date())
 
@@ -123,6 +126,45 @@ export default function HomePage() {
   useEffect(() => {
     document.body.dataset.theme = activePeriod
   }, [activePeriod])
+
+  useEffect(() => {
+    async function hydrateLibraryAndRetryDefaultAudio() {
+      let sourcePlaylists = fallbackPlaylists
+
+      try {
+        const response = await fetch("/api/audio")
+        const data = await response.json()
+
+        if (Array.isArray(data.playlists) && data.playlists.length > 0) {
+          sourcePlaylists = data.playlists
+        }
+      } catch {
+        sourcePlaylists = fallbackPlaylists
+      }
+
+      startDefaultSpeakerLoop(sourcePlaylists)
+    }
+
+    function handleFirstStep() {
+      if (defaultAudioStartedRef.current) {
+        return
+      }
+
+      defaultAudioStartedRef.current = true
+
+      // Must run inside the gesture event stack so browsers allow playback.
+      startDefaultSpeakerLoop(fallbackPlaylists)
+      void hydrateLibraryAndRetryDefaultAudio()
+    }
+
+    window.addEventListener("pointerdown", handleFirstStep, { once: true })
+    window.addEventListener("keydown", handleFirstStep, { once: true })
+
+    return () => {
+      window.removeEventListener("pointerdown", handleFirstStep)
+      window.removeEventListener("keydown", handleFirstStep)
+    }
+  }, [])
 
   // Listen for the hidden keyboard sequence anywhere on the page
   useEffect(() => {

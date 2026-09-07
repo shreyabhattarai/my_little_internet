@@ -28,6 +28,7 @@ import {
   WINDOW_VIEWS,
   WINDOW_VIEWPORT
 } from "@/lib/worldConfig"
+import { persistentSpeakerPlayer } from "@/lib/speakerPlayer"
 
 // Character size used for drawing and collision checks
 const CHAR_SIZE = 28
@@ -191,6 +192,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const [arcadeFocused, setArcadeFocused] = useState(false)
   const [showArcadeOverlay, setShowArcadeOverlay] = useState(false)
   const [arcadeClosing, setArcadeClosing] = useState(false)
+  const [isSpeakerPlaying, setIsSpeakerPlaying] = useState(false)
   const [viewportSize, setViewportSize] = useState({ width: WORLD_WIDTH, height: WORLD_HEIGHT })
   const [screenSize, setScreenSize] = useState({ width: WORLD_WIDTH, height: WORLD_HEIGHT })
 
@@ -548,6 +550,25 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
 
     return () => clearTimeout(timeout)
   }, [arcadeFocused, reducedMotion])
+
+  useEffect(() => {
+    function syncSpeakerPlaybackState() {
+      const audio = persistentSpeakerPlayer.audio
+      const nextPlaying = Boolean(
+        audio &&
+          !audio.paused &&
+          !audio.ended &&
+          persistentSpeakerPlayer.status === "playing"
+      )
+
+      setIsSpeakerPlaying((prev) => (prev === nextPlaying ? prev : nextPlaying))
+    }
+
+    syncSpeakerPlaybackState()
+    const timer = window.setInterval(syncSpeakerPlaybackState, 250)
+
+    return () => window.clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     const wrapper = wrapperRef.current
@@ -925,6 +946,17 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     [screenSize]
   )
 
+  const speakerMusicOrigin = useMemo(() => {
+    if (!speakerZone) {
+      return { x: 0, y: 0 }
+    }
+
+    return {
+      x: speakerZone.x + speakerZone.width * 0.72,
+      y: speakerZone.y + speakerZone.height * 0.2
+    }
+  }, [speakerZone])
+
   const computerOverlayStyle = useMemo(
     () => resolveOverlayAnchorStyle("computer", screenSize),
     [screenSize]
@@ -1100,6 +1132,25 @@ return (
           role="img"
           aria-label="An explorable room with furniture and hidden interactions, use the accessibility drawer for a text version"
         />
+        {isSpeakerPlaying && !reducedMotion ? (
+          <div className={styles.musicNotesLayer} style={cameraTransformStyle} aria-hidden="true">
+            {["♪", "♫", "♬", "♪"].map((note, index) => (
+              <span
+                key={index}
+                className={styles.musicNote}
+                style={{
+                  "--note-x": `${speakerMusicOrigin.x + index * 11}`,
+                  "--note-y": `${speakerMusicOrigin.y + (index % 2 === 0 ? 0 : 6)}`,
+                  "--drift-x": `${index % 2 === 0 ? 16 : -12}px`,
+                  "--delay": `${index * 0.95}s`,
+                  "--duration": `${4.6 + index * 0.35}s`
+                }}
+              >
+                {note}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
       {shouldShowRotatePrompt ? (
         <div className={styles.rotatePrompt} role="status" aria-live="polite">
