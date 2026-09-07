@@ -1,47 +1,55 @@
 "use client"
 
+import { useMemo } from "react"
 import Modal from "../Modal"
-import shared from "../panelContent.module.css"
+import styles from "./WindowModal.module.css"
 import { WINDOW_VIEWS } from "@/lib/worldConfig"
 
-const OPTIONS = ["auto", "day", "dusk", "night"]
+const OPTIONS = ["day", "dusk", "night"]
 
 export default function WindowModal({ onClose, period, overridePeriod, onOverridePeriod }) {
-  const viewSrc = WINDOW_VIEWS[period] || WINDOW_VIEWS.day
-  const periodLabel = period === "dusk" ? "dusk or dawn" : period
+  const activeView = useMemo(() => {
+    if (OPTIONS.includes(overridePeriod)) return overridePeriod
+    if (OPTIONS.includes(period)) return period
+    return "day"
+  }, [overridePeriod, period])
+
+  const activeIndex = OPTIONS.indexOf(activeView)
+  const viewSrc = WINDOW_VIEWS[activeView] || WINDOW_VIEWS.day
+  const activeLabel = activeView === "dusk" ? "dusk or dawn" : activeView
+
+  function shiftView(step) {
+    const nextIndex = (activeIndex + step + OPTIONS.length) % OPTIONS.length
+    onOverridePeriod?.(OPTIONS[nextIndex])
+  }
 
   return (
     <Modal title="Window" onClose={onClose}>
-      <p className={shared.smallText}>the outside is currently {periodLabel}</p>
-      <img
-        src={viewSrc}
-        alt="View through the window"
-        style={{ width: "100%", borderRadius: 10, display: "block", margin: "8px 0 12px" }}
-      />
-      <p className={shared.smallText}>switch view manually any time or keep it on auto</p>
-      <div className={shared.buttonRow} role="group" aria-label="window view mode">
-        {OPTIONS.map((option) => {
-          const active = overridePeriod === option
-          return (
-            <button
-              key={option}
-              type="button"
-              className={shared.button}
-              onClick={() => {
-                onOverridePeriod(option)
-                onClose()
-              }}
-              aria-pressed={active}
-              style={active ? { borderColor: "var(--color-lamp)", color: "var(--color-lamp)" } : undefined}
-            >
-              {option}
-            </button>
-          )
-        })}
+      <p className={styles.helperText}>outside view: {activeLabel}</p>
+
+      <div className={styles.viewer} role="group" aria-label="window view picker">
+        <button
+          type="button"
+          className={styles.arrowButton}
+          aria-label="Show previous window view"
+          onClick={() => shiftView(-1)}
+        >
+          <span aria-hidden="true">&lt;</span>
+        </button>
+
+        <img src={viewSrc} alt={`${activeLabel} view through the window`} className={styles.previewImage} />
+
+        <button
+          type="button"
+          className={styles.arrowButton}
+          aria-label="Show next window view"
+          onClick={() => shiftView(1)}
+        >
+          <span aria-hidden="true">&gt;</span>
+        </button>
       </div>
-      <p className={shared.smallText}>
-        sometimes the best part of the room is looking at something that is not in the room
-      </p>
+
+      <p className={styles.caption}>{activeIndex + 1} / {OPTIONS.length}</p>
     </Modal>
   )
 }

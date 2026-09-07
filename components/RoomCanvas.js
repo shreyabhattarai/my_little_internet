@@ -14,7 +14,8 @@ import {
   FOCUS_TRANSITION_MS,
   getZoneCenter,
   resolveBackToRoomButtonStyle,
-  resolveOverlayAnchorStyle
+  resolveOverlayAnchorStyle,
+  resolveWindowControlsStyle
 } from "@/lib/cameraFocus"
 import {
   WORLD_WIDTH,
@@ -60,12 +61,15 @@ const DECOR = ROOM_DECOR.map((item) => ({
 const SPEAKER_ZONE_ID = "musicArea"
 const COMPUTER_ZONE_ID = "computer"
 const PHOTO_FRAME_ZONE_ID = "photoFrame"
+const WINDOW_ZONE_ID = "window"
 const ARCADE_ZONE_ID = "arcade"
 const DESK_ZONE_ID = "desk"
 const SPEAKER_FOCUS_SCALE = 2.1
 const COMPUTER_FOCUS_SCALE = 3.15
 const ARCADE_FOCUS_SCALE = 2.65
 const PHOTO_FRAME_FOCUS_SCALE = 2.45
+const WINDOW_FOCUS_SCALE = 2.45
+const WINDOW_OPTIONS = ["day", "dusk", "night"]
 const MOBILE_ROTATE_MAX_WIDTH = 599
 const CAMERA_PAN_SPEED = MOVE_SPEED
 const PHOTO_FRAME_DISPLAY_SRC = "/images/family/all_family.jpg"
@@ -133,6 +137,8 @@ function hasFocusedComponent({
   computerClosing,
   photoFrameFocused,
   photoFrameClosing,
+  windowFocused,
+  windowClosing,
   arcadeFocused,
   arcadeClosing
 }) {
@@ -143,12 +149,14 @@ function hasFocusedComponent({
     computerClosing ||
     photoFrameFocused ||
     photoFrameClosing ||
+    windowFocused ||
+    windowClosing ||
     arcadeFocused ||
     arcadeClosing
   )
 }
 
-export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day", reducedMotion, onReady }) {
+export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day", reducedMotion, onReady, onOverridePeriod }) {
   const canvasRef = useRef(null)
   const wrapperRef = useRef(null)
   const stageRef = useRef(null)
@@ -160,6 +168,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const speakerCloseTimerRef = useRef(null)
   const computerCloseTimerRef = useRef(null)
   const photoFrameCloseTimerRef = useRef(null)
+  const windowCloseTimerRef = useRef(null)
   const arcadeCloseTimerRef = useRef(null)
   const focusReturnRef = useRef({ x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 })
   const keysRef = useRef({})
@@ -177,6 +186,8 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const [computerClosing, setComputerClosing] = useState(false)
   const [photoFrameFocused, setPhotoFrameFocused] = useState(false)
   const [photoFrameClosing, setPhotoFrameClosing] = useState(false)
+  const [windowFocused, setWindowFocused] = useState(false)
+  const [windowClosing, setWindowClosing] = useState(false)
   const [arcadeFocused, setArcadeFocused] = useState(false)
   const [showArcadeOverlay, setShowArcadeOverlay] = useState(false)
   const [arcadeClosing, setArcadeClosing] = useState(false)
@@ -186,6 +197,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   const speakerZone = ZONES.find((zone) => zone.id === SPEAKER_ZONE_ID)
   const computerZone = ZONES.find((zone) => zone.id === COMPUTER_ZONE_ID)
   const photoFrameZone = ZONES.find((zone) => zone.id === PHOTO_FRAME_ZONE_ID)
+  const windowZone = ZONES.find((zone) => zone.id === WINDOW_ZONE_ID)
   const arcadeZone = ZONES.find((zone) => zone.id === ARCADE_ZONE_ID)
   const deskZone = ZONES.find((zone) => zone.id === DESK_ZONE_ID)
   const deskCenter = useMemo(
@@ -282,8 +294,48 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
         setArcadeFocused(false)
         setShowArcadeOverlay(false)
         setArcadeClosing(false)
+        setWindowFocused(false)
+        setWindowClosing(false)
         setPhotoFrameClosing(false)
         setPhotoFrameFocused(true)
+        return
+      }
+      if (zone.id === WINDOW_ZONE_ID) {
+        if (speakerCloseTimerRef.current) {
+          clearTimeout(speakerCloseTimerRef.current)
+          speakerCloseTimerRef.current = null
+        }
+        if (computerCloseTimerRef.current) {
+          clearTimeout(computerCloseTimerRef.current)
+          computerCloseTimerRef.current = null
+        }
+        if (photoFrameCloseTimerRef.current) {
+          clearTimeout(photoFrameCloseTimerRef.current)
+          photoFrameCloseTimerRef.current = null
+        }
+        if (arcadeCloseTimerRef.current) {
+          clearTimeout(arcadeCloseTimerRef.current)
+          arcadeCloseTimerRef.current = null
+        }
+        if (windowCloseTimerRef.current) {
+          clearTimeout(windowCloseTimerRef.current)
+          windowCloseTimerRef.current = null
+        }
+
+        focusReturnRef.current = { ...posRef.current }
+        setSpeakerFocused(false)
+        setShowSpeakerOverlay(false)
+        setSpeakerClosing(false)
+        setComputerFocused(false)
+        setShowComputerOverlay(false)
+        setComputerClosing(false)
+        setPhotoFrameFocused(false)
+        setPhotoFrameClosing(false)
+        setArcadeFocused(false)
+        setShowArcadeOverlay(false)
+        setArcadeClosing(false)
+        setWindowClosing(false)
+        setWindowFocused(true)
         return
       }
       if (zone.id === ARCADE_ZONE_ID) {
@@ -314,6 +366,8 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
         setComputerClosing(false)
         setPhotoFrameFocused(false)
         setPhotoFrameClosing(false)
+        setWindowFocused(false)
+        setWindowClosing(false)
         setArcadeClosing(false)
         setArcadeFocused(true)
         return
@@ -397,6 +451,28 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     }, FOCUS_TRANSITION_MS)
   }, [reducedMotion])
 
+  const closeWindowFocus = useCallback(() => {
+    if (windowCloseTimerRef.current) {
+      clearTimeout(windowCloseTimerRef.current)
+      windowCloseTimerRef.current = null
+    }
+
+    if (reducedMotion) {
+      posRef.current = { ...focusReturnRef.current }
+      setWindowClosing(false)
+      setWindowFocused(false)
+      return
+    }
+
+    setWindowClosing(true)
+    setWindowFocused(false)
+    windowCloseTimerRef.current = setTimeout(() => {
+      posRef.current = { ...focusReturnRef.current }
+      setWindowClosing(false)
+      windowCloseTimerRef.current = null
+    }, FOCUS_TRANSITION_MS)
+  }, [reducedMotion])
+
   const closeArcadeFocus = useCallback(() => {
     if (arcadeCloseTimerRef.current) {
       clearTimeout(arcadeCloseTimerRef.current)
@@ -431,6 +507,9 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       }
       if (photoFrameCloseTimerRef.current) {
         clearTimeout(photoFrameCloseTimerRef.current)
+      }
+      if (windowCloseTimerRef.current) {
+        clearTimeout(windowCloseTimerRef.current)
       }
       if (arcadeCloseTimerRef.current) {
         clearTimeout(arcadeCloseTimerRef.current)
@@ -500,8 +579,19 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
         closeComputerFocus()
         return
       }
+      if (windowFocused && e.key === "Escape") {
+        closeWindowFocus()
+        return
+      }
       if (arcadeFocused && e.key === "Escape") {
         closeArcadeFocus()
+        return
+      }
+      if (windowFocused && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+        const activeIndex = WINDOW_OPTIONS.indexOf(WINDOW_OPTIONS.includes(period) ? period : "day")
+        const direction = e.key === "ArrowLeft" ? -1 : 1
+        const nextIndex = (activeIndex + direction + WINDOW_OPTIONS.length) % WINDOW_OPTIONS.length
+        onOverridePeriod?.(WINDOW_OPTIONS[nextIndex])
         return
       }
       keysRef.current[e.key] = true
@@ -515,7 +605,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       window.removeEventListener("keydown", handleKeyDown)
       window.removeEventListener("keyup", handleKeyUp)
     }
-  }, [arcadeFocused, closeArcadeFocus, closeComputerFocus, closeSpeakerFocus, computerFocused, speakerFocused, triggerZone])
+  }, [arcadeFocused, closeArcadeFocus, closeComputerFocus, closeSpeakerFocus, closeWindowFocus, computerFocused, onOverridePeriod, period, speakerFocused, triggerZone, windowFocused])
 
   useEffect(() => {
     let cancelled = false
@@ -585,7 +675,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       if (k["ArrowLeft"]) dx -= 1
       if (k["ArrowRight"]) dx += 1
 
-      if (speakerFocused || speakerClosing || computerFocused || computerClosing || photoFrameFocused || photoFrameClosing || arcadeFocused || arcadeClosing) {
+      if (speakerFocused || speakerClosing || computerFocused || computerClosing || photoFrameFocused || photoFrameClosing || windowFocused || windowClosing || arcadeFocused || arcadeClosing) {
         dx = 0
         dy = 0
       }
@@ -687,11 +777,12 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
 
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [arcadeClosing, arcadeFocused, computerClosing, computerFocused, period, photoFrameClosing, photoFrameFocused, photoFrameZone, speakerClosing, speakerFocused])
+  }, [arcadeClosing, arcadeFocused, computerClosing, computerFocused, period, photoFrameClosing, photoFrameFocused, photoFrameZone, speakerClosing, speakerFocused, windowClosing, windowFocused])
 
   const speakerCenter = getZoneCenter(speakerZone, null)
   const computerCenter = getZoneCenter(computerZone, null)
   const photoFrameCenter = getZoneCenter(photoFrameZone, null)
+  const windowCenter = getZoneCenter(windowZone, null)
   const arcadeCenter = getZoneCenter(arcadeZone, null)
   const isAnyFocusActive = hasFocusedComponent({
     speakerFocused,
@@ -700,10 +791,14 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     computerClosing,
     photoFrameFocused,
     photoFrameClosing,
+    windowFocused,
+    windowClosing,
     arcadeFocused,
     arcadeClosing
   })
-  const focusedCenter = photoFrameFocused || photoFrameClosing
+  const focusedCenter = windowFocused || windowClosing
+    ? windowCenter
+    : photoFrameFocused || photoFrameClosing
     ? photoFrameCenter
     : speakerFocused || speakerClosing
     ? speakerCenter
@@ -712,16 +807,28 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       : arcadeFocused || arcadeClosing
         ? arcadeCenter
         : null
+  const activeFocusedZone = windowFocused || windowClosing
+    ? windowZone
+    : photoFrameFocused || photoFrameClosing
+      ? photoFrameZone
+      : speakerFocused || speakerClosing
+        ? speakerZone
+        : computerFocused || computerClosing
+          ? computerZone
+          : arcadeFocused || arcadeClosing
+            ? arcadeZone
+            : null
   const shouldShowRotatePrompt =
     screenSize.width <= MOBILE_ROTATE_MAX_WIDTH && screenSize.height > screenSize.width
   const isSpeakerTransitioning = speakerFocused || speakerClosing
   const isComputerTransitioning = computerFocused || computerClosing
   const isPhotoFrameTransitioning = photoFrameFocused || photoFrameClosing
+  const isWindowTransitioning = windowFocused || windowClosing
   const isArcadeTransitioning = arcadeFocused || arcadeClosing
-  const isClosingFocus = speakerClosing || computerClosing || photoFrameClosing || arcadeClosing
+  const isClosingFocus = speakerClosing || computerClosing || photoFrameClosing || windowClosing || arcadeClosing
   const responsiveZoom = shouldShowRotatePrompt ? 1 : getDeviceZoom(screenSize.width, screenSize.height)
   const useResponsiveCamera =
-    !isSpeakerTransitioning && !isComputerTransitioning && !isPhotoFrameTransitioning && !isArcadeTransitioning && responsiveZoom > 1
+    !isSpeakerTransitioning && !isComputerTransitioning && !isPhotoFrameTransitioning && !isWindowTransitioning && !isArcadeTransitioning && responsiveZoom > 1
   const baseResponsiveCenter = useResponsiveCamera
     ? hasInteractedRef.current
       ? posRef.current
@@ -735,19 +842,21 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     : null
   const activeCenter = isClosingFocus ? focusReturnRef.current : (focusedCenter || responsiveCenter)
 
-  const zoom = speakerClosing || computerClosing || photoFrameClosing || arcadeClosing
+  const zoom = speakerClosing || computerClosing || photoFrameClosing || windowClosing || arcadeClosing
     ? responsiveZoom
     : speakerFocused
       ? SPEAKER_FOCUS_SCALE
       : computerFocused
         ? COMPUTER_FOCUS_SCALE
+        : windowFocused
+          ? WINDOW_FOCUS_SCALE
         : arcadeFocused
           ? ARCADE_FOCUS_SCALE
           : photoFrameFocused
             ? PHOTO_FRAME_FOCUS_SCALE
             : responsiveZoom
   const focusTarget =
-    isSpeakerTransitioning || isComputerTransitioning || isArcadeTransitioning
+    isSpeakerTransitioning || isComputerTransitioning || isWindowTransitioning || isArcadeTransitioning
       ? FOCUS_TARGET_CENTER
       : FOCUS_TARGET_CENTER
   const { shiftX, shiftY } = computeCameraShift({
@@ -786,6 +895,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
       speakerClosing ||
       isComputerTransitioning ||
       isPhotoFrameTransitioning ||
+      isWindowTransitioning ||
       isArcadeTransitioning ||
       (useResponsiveCamera && !hasInteractedRef.current)
     )
@@ -826,11 +936,27 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
   )
 
   const backToRoomButtonStyle = useMemo(
-    () => resolveBackToRoomButtonStyle(screenSize),
+    () => resolveBackToRoomButtonStyle({
+      screenSize,
+      viewportSize,
+      stageSize: { width: stageWidth, height: stageHeight },
+      worldSize: { width: WORLD_WIDTH, height: WORLD_HEIGHT },
+      camera: { shiftX, shiftY, zoom },
+      zone: activeFocusedZone
+    }),
+    [activeFocusedZone, screenSize, shiftX, shiftY, stageHeight, stageWidth, viewportSize, zoom]
+  )
+
+  const windowControlsStyle = useMemo(
+    () => resolveWindowControlsStyle(screenSize),
     [screenSize]
   )
 
   function handleBackToRoom() {
+    if (windowFocused || windowClosing) {
+      closeWindowFocus()
+      return
+    }
     if (photoFrameFocused || photoFrameClosing) {
       closePhotoFrameFocus()
       return
@@ -848,8 +974,14 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     }
   }
 
+  function shiftWindowView(step) {
+    const activeIndex = WINDOW_OPTIONS.indexOf(WINDOW_OPTIONS.includes(period) ? period : "day")
+    const nextIndex = (activeIndex + step + WINDOW_OPTIONS.length) % WINDOW_OPTIONS.length
+    onOverridePeriod?.(WINDOW_OPTIONS[nextIndex])
+  }
+
   function panByScreenDelta(deltaX, deltaY) {
-    if (zoom <= 1 || speakerFocused || speakerClosing || isComputerTransitioning || isPhotoFrameTransitioning || isArcadeTransitioning) return
+    if (zoom <= 1 || speakerFocused || speakerClosing || isComputerTransitioning || isPhotoFrameTransitioning || isWindowTransitioning || isArcadeTransitioning) return
 
     const worldPerScreenPixelX = WORLD_WIDTH / (viewportSize.width * zoom)
     const worldPerScreenPixelY = WORLD_HEIGHT / (viewportSize.height * zoom)
@@ -938,7 +1070,7 @@ export default function RoomCanvas({ onZoneModal, onZoneUseless, period = "day",
     const x = (e.clientX - rect.left) * scaleX
     const y = (e.clientY - rect.top) * scaleY
 
-    if (speakerFocused || speakerClosing || isComputerTransitioning || isPhotoFrameTransitioning || isArcadeTransitioning) {
+    if (speakerFocused || speakerClosing || isComputerTransitioning || isPhotoFrameTransitioning || isWindowTransitioning || isArcadeTransitioning) {
       return
     }
 
@@ -1011,10 +1143,34 @@ return (
           <ArcadeModal onClose={closeArcadeFocus} />
         </div>
       ) : null}
+      {isWindowTransitioning && !windowClosing && !shouldShowRotatePrompt ? (
+        <div className={styles.windowControls} style={windowControlsStyle} role="group" aria-label="window view picker">
+          <button
+            type="button"
+            className={styles.windowArrowButton}
+            aria-label="Show previous window view"
+            onClick={() => shiftWindowView(-1)}
+          >
+            <span aria-hidden="true">&lt;</span>
+          </button>
+          <button
+            type="button"
+            className={styles.windowArrowButton}
+            aria-label="Show next window view"
+            onClick={() => shiftWindowView(1)}
+          >
+            <span aria-hidden="true">&gt;</span>
+          </button>
+        </div>
+      ) : null}
       {isAnyFocusActive && !shouldShowRotatePrompt ? (
         <button
           type="button"
-          className={styles.focusBackButton}
+          className={
+            isClosingFocus
+              ? styles.focusBackButton + " " + styles.focusBackButtonClosing
+              : styles.focusBackButton + " " + styles.focusBackButtonOpen
+          }
           style={backToRoomButtonStyle}
           onClick={handleBackToRoom}
         >

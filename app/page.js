@@ -13,7 +13,6 @@ import BookshelfModal from "@/components/BookShelf/BookshelfModal"
 import ArcadeModal from "@/components/Gaming/ArcadeModal"
 // Future addition:
 // import BrainrotModal from "@/components/Gaming/BrainrotModal"
-import WindowModal from "@/components/Window/WindowModal"
 import UselessPopup from "@/components/PopUp/UselessPopup"
 import SecretModal from "@/components/SecretModal"
 import { SECRET_KEY_SEQUENCE, getEffectivePeriod, getTimePeriod } from "@/lib/worldConfig"
@@ -215,6 +214,7 @@ export default function HomePage() {
         onZoneUseless={handleZoneUseless}
         period={activePeriod}
         onReady={handleRoomReady}
+        onOverridePeriod={setWindowOverride}
       />
 
       {openModal === "computer" && <ComputerModal onClose={() => setOpenModal(null)} />}
@@ -226,14 +226,6 @@ export default function HomePage() {
       {/* {openModal === "bed" && <BedModal onClose={() => setOpenModal(null)} />} */}
       {/* Future addition: internet modal */}
       {/* {openModal === "brainrot" && <BrainrotModal onClose={() => setOpenModal(null)} />} */}
-      {openModal === "window" && (
-        <WindowModal
-          onClose={() => setOpenModal(null)}
-          period={activePeriod}
-          overridePeriod={windowOverride}
-          onOverridePeriod={setWindowOverride}
-        />
-      )}
       {popup && <UselessPopup message={popup} onDone={() => setPopup(null)} />}
       {secret && <SecretModal secret={secret} onClose={() => setSecret(null)} />}
     </main>

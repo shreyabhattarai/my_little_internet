@@ -1,0 +1,69 @@
+.viewer {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.helperText {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.previewImage {
+  width: 100%;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid var(--color-panel-border);
+  min-height: 160px;
+  max-height: 42vh;
+  object-fit: cover;
+}
+
+.arrowButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--button-border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: var(--button-shadow);
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+}
+
+.arrowButton:hover {
+  border-color: var(--color-lamp);
+  background: var(--button-bg-hover);
+  transform: translateY(-1px);
+}
+
+.caption {
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .viewer {
+    gap: 8px;
+  }
+
+  .previewImage {
+    min-height: 130px;
+  }
+
+  .arrowButton {
+    width: 32px;
+    height: 32px;
+  }
+}

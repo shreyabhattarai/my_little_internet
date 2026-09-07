@@ -2,16 +2,22 @@
 /* A small nighttime bedroom world, warm lamp light against deep indigo */
 
 :root {
-  --color-bg: #14172c;
-  --color-bg-soft: #1c2140;
-  --color-panel: #232a4f;
-  --color-panel-border: #3a416b;
-  --color-cream: #f2ead9;
-  --color-lamp: #f4c95d;
-  --color-pink: #e8a0bf;
-  --color-teal: #6fa8ad;
-  --color-muted: #9aa1c2;
-  --color-danger: #d9705a;
+  --color-bg: #111624;
+  --color-bg-soft: #1a2134;
+  --color-panel: #222d46;
+  --color-panel-border: #3f5277;
+  --color-cream: #f6efe2;
+  --color-lamp: #ffc86f;
+  --color-pink: #e899b4;
+  --color-teal: #7dc2bf;
+  --color-muted: #a5b3ce;
+  --color-danger: #e07b5f;
+
+  --button-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  --button-bg-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.09));
+  --button-border: rgba(187, 207, 236, 0.36);
+  --button-text: var(--color-cream);
+  --button-shadow: 0 8px 18px rgba(5, 8, 16, 0.24);
 
   --font-body: "Space Mono", "Courier New", monospace;
   --font-pixel: "Press Start 2P", "Space Mono", monospace;
@@ -21,39 +27,57 @@
 }
 
 body[data-theme="day"] {
-  --color-bg: #d9e9ff;
-  --color-bg-soft: #edf5ff;
+  --color-bg: #eff6ff;
+  --color-bg-soft: #f8fbff;
   --color-panel: #ffffff;
-  --color-panel-border: #9bb9df;
-  --color-cream: #1f2d45;
-  --color-lamp: #c06b1c;
-  --color-pink: #be6f93;
-  --color-teal: #29728f;
-  --color-muted: #4f6f96;
+  --color-panel-border: #99b8df;
+  --color-cream: #1b2a43;
+  --color-lamp: #b8681f;
+  --color-pink: #ba668a;
+  --color-teal: #2c7e95;
+  --color-muted: #56739a;
+
+  --button-bg: linear-gradient(180deg, #ffffff, #e9f3ff);
+  --button-bg-hover: linear-gradient(180deg, #ffffff, #deedff);
+  --button-border: #8fb3df;
+  --button-text: #223653;
+  --button-shadow: 0 8px 18px rgba(78, 118, 163, 0.18);
 }
 
 body[data-theme="dusk"] {
-  --color-bg: #3a1f2f;
-  --color-bg-soft: #5a2a38;
-  --color-panel: #6a3240;
-  --color-panel-border: #be7f52;
-  --color-cream: #ffe5ca;
-  --color-lamp: #ffc462;
-  --color-pink: #ff9a8f;
-  --color-teal: #f5a770;
-  --color-muted: #f3c199;
+  --color-bg: #2f1d2a;
+  --color-bg-soft: #472838;
+  --color-panel: #5a3242;
+  --color-panel-border: #c48356;
+  --color-cream: #ffe7ce;
+  --color-lamp: #ffc56f;
+  --color-pink: #ff9f92;
+  --color-teal: #f7ad79;
+  --color-muted: #f4c7a1;
+
+  --button-bg: linear-gradient(180deg, rgba(255, 225, 187, 0.18), rgba(255, 225, 187, 0.04));
+  --button-bg-hover: linear-gradient(180deg, rgba(255, 225, 187, 0.24), rgba(255, 225, 187, 0.1));
+  --button-border: rgba(255, 205, 143, 0.5);
+  --button-text: #ffe7ce;
+  --button-shadow: 0 8px 18px rgba(34, 8, 17, 0.28);
 }
 
 body[data-theme="night"] {
-  --color-bg: #14172c;
-  --color-bg-soft: #1c2140;
-  --color-panel: #232a4f;
-  --color-panel-border: #3a416b;
-  --color-cream: #f2ead9;
-  --color-lamp: #f4c95d;
-  --color-pink: #e8a0bf;
-  --color-teal: #6fa8ad;
-  --color-muted: #9aa1c2;
+  --color-bg: #111624;
+  --color-bg-soft: #1a2134;
+  --color-panel: #222d46;
+  --color-panel-border: #3f5277;
+  --color-cream: #f6efe2;
+  --color-lamp: #ffc86f;
+  --color-pink: #e899b4;
+  --color-teal: #7dc2bf;
+  --color-muted: #a5b3ce;
+
+  --button-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  --button-bg-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.09));
+  --button-border: rgba(187, 207, 236, 0.36);
+  --button-text: var(--color-cream);
+  --button-shadow: 0 8px 18px rgba(5, 8, 16, 0.24);
 }
 
 * {
@@ -73,6 +97,9 @@ body {
 body {
   min-height: 100vh;
   overflow-x: hidden;
+  background-image:
+    radial-gradient(circle at 16% 12%, color-mix(in srgb, var(--color-lamp) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--color-teal) 16%, transparent), transparent 36%);
   transition: background-color 300ms ease, color 300ms ease;
 }
 
@@ -83,6 +110,7 @@ a {
 button {
   font-family: var(--font-body);
   cursor: pointer;
+  color: var(--button-text);
 }
 
 .visually-hidden {
