@@ -1,340 +1,393 @@
 .panel {
-  --retro-bg: color-mix(in srgb, var(--color-panel) 70%, var(--color-cream) 30%);
-  --retro-border: var(--color-panel-border);
-  --retro-ink: var(--color-bg);
-  --retro-ink-soft: var(--color-muted);
-  --retro-accent: var(--color-lamp);
-  --retro-line: color-mix(in srgb, var(--color-panel-border) 60%, var(--color-cream) 40%);
-  --retro-paper: color-mix(in srgb, var(--color-cream) 78%, white 22%);
-  --retro-screen: color-mix(in srgb, var(--color-bg) 84%, var(--color-panel) 16%);
-  --retro-screen-text: color-mix(in srgb, var(--color-lamp) 62%, var(--color-cream) 38%);
+--retro-bg: color-mix(in srgb, var(--color-panel) 70%, var(--color-cream) 30%);
+--retro-border: var(--color-panel-border);
+--retro-ink: var(--color-bg);
+--retro-muted: var(--color-muted);
+--retro-accent: var(--color-lamp);
+--retro-paper: color-mix(in srgb, var(--color-cream) 80%, white 20%);
+--retro-screen: color-mix(in srgb, var(--color-bg) 86%, var(--color-panel) 14%);
+--retro-screen-text: color-mix(in srgb, var(--color-lamp) 62%, var(--color-cream) 38%);
 
-  width: 100%;
-  max-width: 640px;
-  max-height: none;
-  background: var(--retro-bg);
-  border: 2px solid var(--retro-border);
-  border-radius: 10px;
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.36);
-  color: var(--retro-ink);
-  overflow: hidden;
-  font-family: "Courier New", monospace;
+width: 100%;
+max-width: 620px;
+overflow: hidden;
+border: 2px solid var(--retro-border);
+border-radius: 9px;
+background: var(--retro-bg);
+color: var(--retro-ink);
+font-family: "Courier New", monospace;
+box-shadow: 0 14px 28px rgba(0, 0, 0, 0.32);
 }
 
 .chromeBar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--retro-accent) 65%, white 35%) 0%,
-    var(--retro-accent) 100%
-  );
-  border-bottom: 2px solid var(--retro-border);
-  padding: 8px 10px;
+height: 32px;
+padding: 0 8px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+border-bottom: 2px solid var(--retro-border);
+background: linear-gradient(
+180deg,
+color-mix(in srgb, var(--retro-accent) 65%, white 35%),
+var(--retro-accent)
+);
+}
+
+.brandGroup {
+min-width: 0;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.statusLamp {
+width: 6px;
+height: 6px;
+flex: 0 0 auto;
+border-radius: 50%;
+background: var(--retro-screen);
+}
+
+.statusLampActive {
+background: var(--retro-screen-text);
+box-shadow: 0 0 5px var(--retro-screen-text);
 }
 
 .brand {
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+overflow: hidden;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.08em;
+text-overflow: ellipsis;
+text-transform: uppercase;
+white-space: nowrap;
 }
 
 .closeButton {
-  width: 28px;
-  height: 24px;
-  border: 2px solid var(--retro-border);
-  border-radius: 4px;
-  background: var(--retro-paper);
-  color: var(--retro-ink);
-  font-size: 14px;
-  line-height: 1;
+width: 23px;
+height: 21px;
+padding: 0;
+border: 1px solid var(--retro-border);
+border-radius: 3px;
+background: var(--retro-paper);
+color: var(--retro-ink);
+font: 700 12px "Courier New", monospace;
+cursor: pointer;
 }
 
-.displayArea {
-  display: grid;
-  grid-template-columns: 170px 1fr;
-  gap: 8px;
-  padding: 10px 10px 6px 10px;
+.main {
+display: grid;
+grid-template-columns: minmax(0, 1fr);
 }
 
-.timeBlock {
-  border: 2px solid var(--retro-border);
-  border-radius: 4px;
-  background: var(--retro-screen);
-  color: var(--retro-screen-text);
-  padding: 8px;
+.display {
+min-width: 0;
+min-height: 76px;
+padding: 8px 9px;
+display: grid;
+grid-template-columns: minmax(0, 1fr) auto;
+grid-template-rows: auto 20px;
+column-gap: 10px;
+row-gap: 4px;
+background: var(--retro-screen);
+color: var(--retro-screen-text);
 }
 
-.timeValue {
-  display: block;
-  font-size: 28px;
-  line-height: 1;
-  margin-bottom: 6px;
+.displayInfo {
+min-width: 0;
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+
+.displayLabel {
+margin-bottom: 2px;
+font-size: 7px;
+font-weight: 700;
+letter-spacing: 0.12em;
+opacity: 0.65;
+}
+
+.trackTitle {
+overflow: hidden;
+font-size: 14px;
+line-height: 1.2;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.playlistName {
+margin-top: 3px;
+overflow: hidden;
+font-size: 9px;
+opacity: 0.65;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.clock {
+min-width: 64px;
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+justify-content: center;
+}
+
+.clock span {
+font-size: 20px;
+font-weight: 700;
+line-height: 1;
+}
+
+.clock small {
+margin-top: 3px;
+font-size: 8px;
+opacity: 0.6;
 }
 
 .equalizer {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 26px;
+grid-column: 1 / -1;
+height: 18px;
+display: flex;
+align-items: flex-end;
+gap: 3px;
 }
 
-.eqBar {
-  width: 6px;
-  height: 5px;
-  background: var(--retro-accent);
-  border-radius: 1px;
+.equalizer i {
+display: block;
+width: 5px;
+height: 4px;
+border-radius: 1px;
+background: var(--retro-accent);
 }
 
-.eqBarAnimated {
-  animation: pulse 0.72s linear infinite alternate;
+.eqBarActive {
+animation: pulse 0.7s linear infinite alternate;
 }
 
-.metaBlock {
-  border: 2px solid var(--retro-border);
-  border-radius: 4px;
-  background: var(--retro-paper);
-  padding: 8px;
+.seek {
+padding: 2px 9px 6px;
+background: var(--retro-screen);
 }
 
-.trackLine {
-  margin: 0;
-  background: var(--retro-screen);
-  color: var(--retro-screen-text);
-  border: 1px solid var(--retro-border);
-  border-radius: 2px;
-  padding: 6px 8px;
-  font-size: 14px;
+.seek input {
+--progress: 0%;
+
+width: 100%;
+height: 14px;
+margin: 0;
+display: block;
+appearance: none;
+background: transparent;
+cursor: pointer;
 }
 
-.subLine {
-  margin: 8px 0;
-  color: var(--retro-ink-soft);
-  font-size: 12px;
+.seek input::-webkit-slider-runnable-track {
+height: 5px;
+border: 1px solid var(--retro-border);
+border-radius: 2px;
+background: linear-gradient(
+90deg,
+var(--retro-accent) 0%,
+var(--retro-accent) var(--progress),
+var(--retro-paper) var(--progress),
+var(--retro-paper) 100%
+);
 }
 
-.metaChips {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.seek input::-moz-range-track {
+height: 5px;
+border: 1px solid var(--retro-border);
+border-radius: 2px;
+background: linear-gradient(
+90deg,
+var(--retro-accent) 0%,
+var(--retro-accent) var(--progress),
+var(--retro-paper) var(--progress),
+var(--retro-paper) 100%
+);
 }
 
-.metaChips span {
-  border: 1px solid var(--retro-border);
-  padding: 2px 6px;
-  border-radius: 3px;
-  font-size: 11px;
-  background: color-mix(in srgb, var(--retro-paper) 88%, white 12%);
+.seek input::-webkit-slider-thumb {
+width: 11px;
+height: 11px;
+margin-top: -4px;
+appearance: none;
+border: 2px solid var(--retro-border);
+border-radius: 2px;
+background: var(--retro-paper);
 }
 
-.selectionRow {
-  display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 8px;
-  padding: 0 10px 8px 10px;
+.seek input::-moz-range-thumb {
+width: 8px;
+height: 8px;
+border: 2px solid var(--retro-border);
+border-radius: 2px;
+background: var(--retro-paper);
 }
 
-.picker {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+.seek input:disabled {
+cursor: not-allowed;
+opacity: 0.45;
 }
 
-.picker span {
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--retro-ink-soft);
+.seek input:focus-visible {
+outline: 1px dashed var(--retro-accent);
+outline-offset: 2px;
 }
 
-.picker select {
-  width: 100%;
-  border: 1px solid var(--retro-border);
-  border-radius: 4px;
-  background: var(--retro-paper);
-  color: var(--retro-ink);
-  font-family: "Courier New", monospace;
-  font-size: 11px;
-  padding: 5px 6px;
+.selectors {
+display: grid;
+grid-template-columns: 0.8fr 1.5fr;
+gap: 6px;
+padding: 6px 9px;
+border-top: 1px solid var(--retro-border);
+background: var(--retro-bg);
 }
 
-.transportRow {
-  display: grid;
-  grid-template-columns: auto minmax(140px, 1fr);
-  align-items: center;
-  gap: 10px;
-  border-top: 2px solid var(--retro-line);
-  padding: 8px 10px;
+.selectors select {
+width: 100%;
+min-width: 0;
+height: 27px;
+padding: 0 5px;
+border: 1px solid var(--retro-border);
+border-radius: 3px;
+background: var(--retro-paper);
+color: var(--retro-ink);
+font: 9px "Courier New", monospace;
+outline: none;
 }
 
-.controlsGroup {
-  display: inline-flex;
-  gap: 6px;
+.selectors select:focus-visible {
+outline: 1px dashed var(--retro-accent);
+outline-offset: 1px;
 }
 
-.controlButton {
-  border: 2px solid var(--retro-border);
-  border-radius: 3px;
-  background: var(--retro-paper);
-  color: var(--retro-ink);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  min-width: 40px;
-  height: 34px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.controls {
+min-height: 42px;
+padding: 5px 9px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 5px;
+border-top: 1px solid var(--retro-border);
+background: color-mix(in srgb, var(--retro-bg) 92%, black 8%);
 }
 
-.controlButton svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+.controls button {
+width: 34px;
+height: 30px;
+padding: 0;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+border: 1px solid var(--retro-border);
+border-radius: 3px;
+background: var(--retro-paper);
+color: var(--retro-ink);
+cursor: pointer;
+transition:
+background 100ms ease,
+transform 100ms ease;
 }
 
-.progressCluster {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
+.controls button:hover {
+background: var(--retro-accent);
 }
 
-.progressRail {
-  height: 8px;
-  border: 1px solid var(--retro-border);
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--retro-screen) 70%, var(--retro-paper) 30%);
-  overflow: hidden;
+.controls button:active {
+transform: translateY(1px);
 }
 
-.progressFill {
-  display: block;
-  height: 100%;
-  width: 0;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--retro-accent) 78%, white 22%) 0%,
-    var(--retro-accent) 100%
-  );
+.controls button:focus-visible {
+outline: 1px dashed var(--retro-accent);
+outline-offset: 2px;
+}
+
+.controls svg {
+width: 14px;
+height: 14px;
+fill: currentColor;
+}
+
+.primaryControl {
+background:
+color-mix(in srgb, var(--retro-paper) 72%, var(--retro-accent) 28%) !important;
 }
 
 @keyframes pulse {
-  0% {
-    height: 6px;
-  }
-  100% {
-    height: 24px;
-  }
+0% {
+height: 4px;
 }
 
-@media (max-width: 760px) {
-  .panel {
-    border-width: 1px;
-  }
-
-  .displayArea {
-    grid-template-columns: 120px 1fr;
-    gap: 6px;
-    padding: 8px;
-  }
-
-  .timeValue {
-    font-size: 22px;
-    margin-bottom: 4px;
-  }
-
-  .equalizer {
-    height: 18px;
-    gap: 3px;
-  }
-
-  .eqBar {
-    width: 5px;
-  }
-
-  .metaBlock,
-  .timeBlock {
-    padding: 6px;
-    border-width: 1px;
-  }
-
-  .trackLine {
-    font-size: 12px;
-    padding: 5px 6px;
-  }
-
-  .subLine {
-    margin: 5px 0;
-    font-size: 11px;
-  }
-
-  .metaChips {
-    gap: 5px;
-  }
-
-  .metaChips span {
-    font-size: 10px;
-    padding: 2px 5px;
-  }
-
-  .selectionRow {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    padding: 0 8px 6px 8px;
-  }
-
-  .picker span {
-    font-size: 9px;
-  }
-
-  .picker select {
-    font-size: 10px;
-    padding: 4px 5px;
-  }
-
-  .transportRow {
-    grid-template-columns: auto 1fr;
-    gap: 6px;
-    padding: 8px;
-  }
-
-  .controlsGroup {
-    gap: 5px;
-  }
-
-  .controlButton {
-    min-width: 32px;
-    height: 28px;
-    border-width: 1px;
-  }
-
-  .controlButton svg {
-    width: 13px;
-    height: 13px;
-  }
-
-  .progressRail {
-    height: 7px;
-  }
+100% {
+height: 17px;
+}
 }
 
-@media (max-width: 600px) {
-  .transportRow {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .controlsGroup {
-    justify-content: space-between;
-    width: 100%;
-  }
+@media (max-width: 430px) {
+.panel {
+border-width: 1px;
 }
 
-@media (max-height: 760px) {
-  .panel {
-    border-width: 1px;
-  }
+.chromeBar {
+border-bottom-width: 1px;
+}
+
+.display {
+min-height: 70px;
+padding: 7px 8px;
+}
+
+.trackTitle {
+font-size: 12px;
+}
+
+.clock span {
+font-size: 17px;
+}
+
+.selectors {
+padding: 5px 8px;
+}
+
+.controls {
+min-height: 38px;
+padding: 4px 8px;
+}
+
+.controls button {
+width: 31px;
+height: 28px;
+}
+}
+
+@media (max-width: 330px) {
+.selectors {
+grid-template-columns: 1fr 1fr;
+}
+
+.controls {
+gap: 3px;
+}
+
+.controls button {
+width: 29px;
+height: 27px;
+}
+
+.controls svg {
+width: 13px;
+height: 13px;
+}
+}
+
+@media (prefers-reduced-motion: reduce) {
+.eqBarActive {
+animation: none;
+}
+
+.controls button {
+transition: none;
+}
 }
