@@ -64,11 +64,12 @@ export async function GET() {
         id: folder.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         label: folder.replace(/[-_]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()),
         description: `tracks from audio/${folder}`,
-        tracks
+        tracks: [...tracks].sort((a, b) => a.title.localeCompare(b.title))
       }))
 
     return NextResponse.json({ playlists, allTracks })
-  } catch (error) {
+  } catch {
+    // no audio folder yet, or unreadable, treat as an empty library
     return NextResponse.json(
       { playlists: [], allTracks: [], error: "unable to read audio library" },
       { status: 200 }

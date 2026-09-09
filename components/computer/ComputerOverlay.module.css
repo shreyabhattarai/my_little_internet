@@ -1,0 +1,1178 @@
+.frame {
+  --xp-blue-top: #4f9dfd;
+  --xp-blue-mid: #1f68d9;
+  --xp-blue-deep: #0a3fa8;
+  --xp-blue-edge: #072b7a;
+  width: clamp(420px, 90vw, 1040px);
+  max-width: calc(100vw - 20px);
+  border: 1px solid var(--xp-blue-edge);
+  border-radius: 9px 9px 0 0;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.55), 0 0 0 2px rgba(9, 41, 110, 0.5);
+  overflow: hidden;
+  background: var(--xp-blue-mid);
+  font-family: Tahoma, Verdana, "Segoe UI", sans-serif;
+  color: #0f172b;
+  transition: width 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.frameMaximized {
+  width: min(97vw, 1320px);
+}
+
+.windowBar {
+  position: relative;
+  height: 32px;
+  background: linear-gradient(180deg, var(--xp-blue-top) 0%, #2e7dea 16%, var(--xp-blue-mid) 46%, var(--xp-blue-deep) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px 0 8px;
+  color: #ffffff;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.windowBar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 46%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.windowTitleGroup {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.windowTitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.windowControls {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 3px;
+}
+
+.windowControls button {
+  width: 22px;
+  height: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, #5aa4ff 0%, #1a5fdb 45%, #0f45b8 100%);
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: filter 120ms ease;
+}
+
+.windowControls button:hover {
+  filter: brightness(1.12);
+}
+
+.windowControls button.decorativeControl {
+  cursor: default;
+  opacity: 0.78;
+}
+
+.windowControls button.decorativeControl:hover {
+  filter: none;
+}
+
+.windowControls button.closeControl {
+  background: linear-gradient(180deg, #f08163 0%, #dd3a12 45%, #b32505 100%);
+}
+
+.windowControls button.closeControl:hover {
+  filter: brightness(1.1);
+}
+
+.desktopShell {
+  background: var(--xp-blue-deep);
+  padding: 8px;
+}
+
+.desktopBooting,
+.desktopReady {
+  position: relative;
+  height: clamp(340px, 64vh, 640px);
+  border: 1px solid var(--xp-blue-edge);
+  overflow: hidden;
+  background: #4a86c9;
+  transition: height 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.frameMaximized .desktopBooting,
+.frameMaximized .desktopReady {
+  height: clamp(460px, 80vh, 780px);
+}
+
+/* Wallpaper, a small nod to the classic XP hill and sky */
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2f7fe0 0%, #6fb4ef 46%, #bfe2f7 78%, #d9f0e0 100%);
+}
+
+.wallpaperSun {
+  position: absolute;
+  top: 8%;
+  right: 14%;
+  width: 15%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff9d6 0%, #ffe98f 55%, rgba(255, 233, 143, 0) 75%);
+}
+
+.wallpaperHillFar {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -6%;
+  height: 46%;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: linear-gradient(180deg, #5fae54 0%, #418c3d 100%);
+  opacity: 0.85;
+}
+
+.wallpaperHillNear {
+  position: absolute;
+  left: -15%;
+  right: -25%;
+  bottom: -14%;
+  height: 42%;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: linear-gradient(180deg, #75c363 0%, #4a9a41 100%);
+}
+
+/* Boot screen */
+.bootScreen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(180deg, #04102d 0%, #071a44 55%, #04102d 100%);
+  color: #eaf1ff;
+}
+
+.bootTitle {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.bootBarTrack {
+  width: min(220px, 60%);
+  height: 12px;
+  border: 1px solid #1a3a76;
+  border-radius: 3px;
+  background: #061634;
+  overflow: hidden;
+}
+
+.bootBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #2f7bff, #7fd0ff);
+  transition: width 120ms linear;
+}
+
+/* Icons */
+.desktopIcon {
+  position: absolute;
+  top: calc(16px + var(--icon-row, 0) * 92px);
+  left: calc(16px + var(--icon-col, 0) * 92px);
+  width: 76px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  animation: iconIn 340ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.desktopIcon:nth-child(1) { animation-delay: 40ms; }
+.desktopIcon:nth-child(2) { animation-delay: 100ms; }
+.desktopIcon:nth-child(3) { animation-delay: 160ms; }
+.desktopIcon:nth-child(4) { animation-delay: 220ms; }
+
+.desktopIcon span {
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.desktopIconSelected,
+.desktopIcon:hover {
+  background: rgba(35, 92, 184, 0.55);
+  border: 1px dotted rgba(255, 255, 255, 0.85);
+}
+
+/* Explorer window */
+.explorerWindow {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  left: clamp(96px, 16%, 140px);
+  border: 1px solid var(--xp-blue-mid);
+  border-radius: 4px 4px 0 0;
+  background: #ffffff;
+  box-shadow: 0 18px 36px rgba(3, 23, 64, 0.5);
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  transform-origin: 84% 8%;
+}
+
+.explorerOpening {
+  animation: explorerPopIn 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.explorerClosing {
+  animation: explorerPopOut 190ms cubic-bezier(0.55, 0.08, 0.68, 0.53) both;
+}
+
+.explorerBar {
+  min-height: 27px;
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, var(--xp-blue-top) 0%, #2e7dea 16%, var(--xp-blue-mid) 46%, var(--xp-blue-deep) 100%);
+  color: #ffffff;
+  font-size: 12px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.explorerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.explorerControls {
+  display: flex;
+  gap: 3px;
+}
+
+.explorerMinimize,
+.explorerClose {
+  border: 1px solid #ffffff;
+  border-radius: 3px;
+  width: 20px;
+  height: 19px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+}
+
+.explorerMinimize {
+  background: linear-gradient(180deg, #5aa4ff 0%, #1a5fdb 100%);
+}
+
+.explorerClose {
+  background: linear-gradient(180deg, #f08163 0%, #c23115 100%);
+}
+
+.explorerMinimize:hover,
+.explorerClose:hover {
+  filter: brightness(1.12);
+}
+
+.explorerToolbar {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #234f8a;
+  padding: 4px 8px;
+  border-bottom: 1px solid #d0d0c0;
+  background: #f0f0e8;
+}
+
+.explorerAddressBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: #f0f0e8;
+  border-bottom: 1px solid #c5d8f2;
+  font-size: 11px;
+}
+
+.addressLabel {
+  color: #666;
+}
+
+.addressInput {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #7f9db9;
+  padding: 2px 5px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.explorerLayout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Left details pane, the classic XP webview strip */
+.taskPane {
+  width: 168px;
+  flex: none;
+  padding: 12px 10px;
+  background: linear-gradient(180deg, #eef5ff 0%, #dceaff 100%);
+  border-right: 1px solid #c7dbf5;
+  overflow-y: auto;
+}
+
+.taskPaneIcon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.taskPaneTitle {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1d4070;
+  text-align: center;
+}
+
+.taskPaneMeta {
+  margin: 0 0 4px;
+  font-size: 11px;
+  color: #3f5f84;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.taskPaneMeta strong {
+  color: #1d4070;
+  font-weight: 700;
+}
+
+.taskPaneAction {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #5c8bc4;
+  background: linear-gradient(180deg, #ffffff 0%, #dcecff 100%);
+  border-radius: 3px;
+  color: #194579;
+  font-size: 11px;
+  padding: 5px 6px;
+  cursor: pointer;
+}
+
+.taskPaneAction:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.taskPaneDetails {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #a9c6ea;
+}
+
+.explorerBody {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+  background: #ffffff;
+  min-width: 0;
+}
+
+/* Photo grid */
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 10px;
+}
+
+.photoThumb {
+  border: 1px solid #bfd4ef;
+  background: #f2f8ff;
+  border-radius: 4px;
+  padding: 5px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease;
+}
+
+.photoThumb:hover {
+  transform: translateY(-2px);
+  border-color: var(--xp-blue-mid);
+}
+
+.photoThumbFrame {
+  display: block;
+  aspect-ratio: 4 / 3;
+  background: #12294f;
+  border: 1px solid #8cb4e4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.photoThumbFrame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.photoThumbLabel {
+  font-size: 10px;
+  color: #365c90;
+}
+
+/* Filmstrip view, the real XP My Pictures layout */
+.filmstrip {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.filmstripStage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.filmstripArrow {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #9db8dd;
+  background: linear-gradient(180deg, #ffffff, #dcecff);
+  color: #1d4070;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+.filmstripArrow:hover {
+  filter: brightness(1.05);
+  transform: scale(1.06);
+}
+
+.filmstripFrame {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  min-height: 160px;
+  background: #10182a;
+  border: 1px solid #253559;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.filmstripImage {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  animation: photoFadeIn 260ms ease both;
+}
+
+.filmstripCaption {
+  margin: 0;
+  text-align: center;
+  color: #1d4070;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.filmstripMemory {
+  margin: -4px 0 0;
+  text-align: center;
+  color: #3f5f84;
+  font-size: 11px;
+  font-style: italic;
+}
+
+.filmstripTray {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px 2px;
+}
+
+.filmstripThumb {
+  flex: none;
+  width: 46px;
+  height: 36px;
+  border: 2px solid transparent;
+  border-radius: 2px;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  background: #12294f;
+  opacity: 0.7;
+  transition: opacity 140ms ease, border-color 140ms ease;
+}
+
+.filmstripThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.filmstripThumb:hover {
+  opacity: 0.9;
+}
+
+.filmstripThumbActive {
+  border-color: var(--xp-blue-mid);
+  opacity: 1;
+}
+
+.metaLine {
+  margin: 0;
+  color: #355277;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.emptyFolder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 26px 10px;
+  text-align: center;
+  color: #3f5f84;
+  border: 1px dashed #9fc0e8;
+  border-radius: 4px;
+  background: #f4f9ff;
+}
+
+.emptyFolder span:first-child {
+  font-size: 22px;
+}
+
+.emptyFolder p {
+  margin: 0;
+  font-size: 11px;
+}
+
+.noteList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.noteList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid #ccdcf2;
+  border-radius: 4px;
+  padding: 8px 9px;
+  background: #f9fcff;
+}
+
+.noteIcon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.noteTitle {
+  margin: 0 0 3px 0;
+  font-weight: 700;
+  color: #1d4070;
+  font-size: 11px;
+}
+
+.noteBody {
+  margin: 0;
+  color: #3f5f84;
+  font-size: 11px;
+}
+
+.linksList {
+  list-style: none;
+  margin: 6px 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.linksList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid #cbdcf2;
+  background: #f7fbff;
+  border-radius: 4px;
+  padding: 7px 8px;
+}
+
+.linkIcon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.linksList li > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.linksList strong {
+  font-size: 11px;
+  color: #1e487c;
+}
+
+.linksList span {
+  color: #3b618b;
+  font-size: 11px;
+}
+
+.trashList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.trashList li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #c8d9ef;
+  border-radius: 3px;
+  background: #f8fbff;
+  padding: 5px 8px;
+}
+
+.trashList span {
+  color: #304f75;
+  font-size: 11px;
+}
+
+.xpAction,
+.xpDanger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid #5c8bc4;
+  background: linear-gradient(180deg, #ffffff 0%, #dcecff 100%);
+  border-radius: 3px;
+  color: #194579;
+  font-size: 11px;
+  padding: 4px 9px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.xpDanger {
+  border-color: #a85a60;
+  color: #8b1e1e;
+  background: linear-gradient(180deg, #fff4f4 0%, #ffd9d9 100%);
+  align-self: auto;
+}
+
+/* Start menu */
+.startMenu {
+  position: absolute;
+  left: 6px;
+  bottom: 38px;
+  width: min(320px, 84%);
+  border-radius: 8px 8px 8px 0;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  z-index: 6;
+  animation: startMenuIn 200ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  transform-origin: 0% 100%;
+}
+
+.startMenuHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: linear-gradient(180deg, var(--xp-blue-top), var(--xp-blue-mid));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.startMenuAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
+.startMenuBody {
+  display: flex;
+  background: #ffffff;
+}
+
+.startMenuColumnMain {
+  flex: 1.3;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 6px;
+  gap: 2px;
+}
+
+.startMenuColumnMain button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #1c3557;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.startMenuColumnMain button:hover {
+  background: #dbe9ff;
+}
+
+.startMenuColumnSide {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 6px;
+  background: #e7effc;
+  border-left: 1px solid #d1e0f5;
+}
+
+.startMenuColumnSide span {
+  font-size: 11px;
+  color: #5b7194;
+  padding: 6px 8px;
+  cursor: default;
+}
+
+.startMenuFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 7px 8px;
+  background: linear-gradient(180deg, #cfe0f7, #b9d2f2);
+  border-top: 1px solid #a9c4e8;
+}
+
+.startMenuFooter button {
+  border: 1px solid #7fa0cf;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ffffff, #dcecff);
+  color: #194579;
+  font-size: 11px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.startMenuTurnOff {
+  border-color: #c78a4a !important;
+  background: linear-gradient(180deg, #fff2df, #ffdca6) !important;
+  color: #7a3f08 !important;
+}
+
+.startMenuLogOff:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Shutdown flow */
+.shutdownBackdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: rgba(4, 12, 30, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 160ms ease both;
+}
+
+.shutdownDialog {
+  width: min(300px, 88%);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #1c3a63;
+  border: 1px solid #7fa5d9;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  padding: 16px 14px 12px;
+  animation: dialogIn 200ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.shutdownTitle {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 13px;
+  text-align: center;
+}
+
+.shutdownOptions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.shutdownOptions button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  color: #dce8fb;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.shutdownIconStandby,
+.shutdownIconOff,
+.shutdownIconRestart {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #cfe0f7;
+  background: linear-gradient(180deg, #3f6ba5, #244c82);
+}
+
+.shutdownIconOff {
+  border-color: #ffcf9d;
+  background: linear-gradient(180deg, #ff9d52, #d9631a);
+}
+
+.shutdownIconRestart {
+  border-color: #b8f3c3;
+  background: linear-gradient(180deg, #58c56d, #2e9645);
+}
+
+.shutdownOptions button:hover span,
+.shutdownOptions button:hover .shutdownIconStandby,
+.shutdownOptions button:hover .shutdownIconOff,
+.shutdownOptions button:hover .shutdownIconRestart {
+  filter: brightness(1.15);
+}
+
+.shutdownCancel {
+  display: block;
+  margin: 0 auto;
+  border: 1px solid #7fa0cf;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #ffffff, #dcecff);
+  color: #194579;
+  font-size: 11px;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+
+.powerScreen {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eaf1ff;
+  font-size: 13px;
+  animation: fadeIn 260ms ease both;
+}
+
+.standbyFlash {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: #fff;
+  animation: standbyFlash 260ms ease both;
+  pointer-events: none;
+}
+
+/* Taskbar */
+.taskbar {
+  height: 32px;
+  background: linear-gradient(180deg, #3a8ceb 0%, #2467d9 9%, #0a3fa8 100%);
+  border-top: 1px solid #5293ee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  gap: 6px;
+}
+
+.startButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #14490a;
+  border-radius: 0 9px 9px 0;
+  color: #ffffff;
+  background: linear-gradient(180deg, #4ea653 0%, #2e7d32 45%, #1f5c24 100%);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 13px;
+  padding: 3px 14px 3px 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.startButtonActive {
+  background: linear-gradient(180deg, #2e7d32 0%, #1f5c24 100%);
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.taskbarItems {
+  flex: 1;
+  display: flex;
+  padding: 0 4px;
+  min-width: 0;
+}
+
+.taskbarButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #5aa4ff 0%, #1754db 100%);
+  border: 1px solid #0d3895;
+  border-radius: 3px;
+  color: #ffffff;
+  padding: 3px 9px;
+  max-width: 170px;
+  height: 23px;
+  cursor: pointer;
+}
+
+.taskbarButtonActive {
+  background: linear-gradient(180deg, #123e9e 0%, #1a51c4 100%);
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.taskLabel {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.systemTray {
+  flex: none;
+  background: linear-gradient(180deg, #1c7fe0 0%, #0b57b0 100%);
+  border: 1px solid #094e96;
+  border-radius: 3px 0 0 3px;
+  padding: 3px 10px;
+  cursor: default;
+}
+
+.clock {
+  color: #ffffff;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+@keyframes iconIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes explorerPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes explorerPopOut {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+}
+
+@keyframes photoFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes startMenuIn {
+  from {
+    opacity: 0;
+    transform: scaleY(0.85) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes standbyFlash {
+  0% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+@media (max-width: 620px) {
+  .taskPane {
+    display: none;
+  }
+
+  .explorerWindow {
+    left: clamp(80px, 14%, 110px);
+  }
+
+  .desktopIcon {
+    width: 66px;
+  }
+
+  .filmstripArrow {
+    width: 26px;
+    height: 26px;
+  }
+
+  .startMenu {
+    width: min(280px, 92%);
+  }
+}
+
+@media (max-width: 460px) {
+  .windowTitle {
+    font-size: 11px;
+  }
+
+  .desktopIcon {
+    top: calc(12px + var(--icon-row, 0) * 78px);
+    left: calc(12px + var(--icon-col, 0) * 78px);
+    width: 60px;
+  }
+
+  .startMenuBody {
+    flex-direction: column;
+  }
+
+  .startMenuColumnSide {
+    border-left: none;
+    border-top: 1px solid #d1e0f5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .desktopBooting,
+  .desktopReady,
+  .desktopIcon,
+  .explorerOpening,
+  .explorerClosing,
+  .filmstripImage,
+  .startMenu,
+  .shutdownBackdrop,
+  .shutdownDialog,
+  .powerScreen,
+  .standbyFlash {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .photoThumb:hover,
+  .filmstripArrow:hover {
+    transform: none;
+  }
+}

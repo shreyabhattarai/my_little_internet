@@ -1,19 +1,35 @@
 # My Little Internet
 
-My Little Internet is a small interactive personal website built with Next.js. It presents a browser-based room or digital home where users can explore objects, trigger playful interactions, browse fake desktop content, and discover hidden details.
+My Little Internet is a small interactive personal website built with Next.js.
+It presents a browser based room where you can look around, click on things,
+and find a few playful details along the way. It is meant to be a fun,
+personal space, not a serious product.
 
 ## Overview
 
-This project is designed as an expressive, self-contained digital space rather than a conventional portfolio. It combines a canvas-based room layout, modal content panels, ambient UI, and a few hidden easter eggs.
+The room is drawn on an HTML canvas. A handful of zones in the room open
+overlays or modals: an arcade with a few real mini games, a fake retro
+computer desktop, a speaker that plays your own music, a window with a
+day and night view, a photo frame, a bookshelf, and a desk with small
+written updates. A few extra ideas (a bed, a wardrobe, a second internet
+folder) exist in the code as unfinished future additions and are not
+wired into the room yet.
 
 ## Features
 
-- A navigable room scene with keyboard and pointer controls
-- Interactive zones for music, photos, desk content, books, and arcade-like moments
-- Desktop style panels and overlays for simulated browsing and personal content
-- Customizable content driven by the files in the lib directory
-- Responsive UI and accessibility-friendly navigation patterns
-- A lightweight Next.js app with plain CSS modules and no heavy game engine
+- A navigable room scene with keyboard, mouse, and touch controls
+- An arcade corner with reaction time, snake, memory, 2048, tic tac toe
+  and a stacking game, each with local best scores
+- A fake Windows style computer desktop with photos, notes, bookmarks
+  and a trash folder
+- A speaker that plays music straight from your own `public/audio`
+  folders, picked up automatically, no code changes needed
+- A window and a photo frame with their own focused camera views
+- A bookshelf and a desk feed with small personal content
+- A hidden key sequence easter egg
+- Automatic fullscreen and music start on first interaction
+- A rotate prompt for small portrait phones, the room needs about
+  600px of width or height to draw comfortably
 
 ## Tech Stack
 
@@ -24,10 +40,18 @@ This project is designed as an expressive, self-contained digital space rather t
 
 ## Project Structure
 
-- app contains the app entry and page layout
-- components contains reusable UI and modal components
-- lib contains world data, content, and behavior definitions
-- public contains images, audio, and static assets
+- `app` the app entry, page, layout, 404 and error screens, and the
+  `/api/audio` route that scans `public/audio`
+- `components/room` the canvas room itself
+- `components/arcade`, `components/computer`, `components/speaker` the
+  three built out interactive pieces
+- `components/bookshelf`, `components/desk`, `components/secret`,
+  `components/popup` smaller content panels
+- `components/shared` the shared modal and panel styles
+- `components/future` unfinished ideas not currently reachable from
+  the room, kept around for later
+- `lib` room layout, zone definitions, and all editable content
+- `public` images and audio, added separately, not part of this bundle
 
 ## Getting Started
 
@@ -52,31 +76,47 @@ npm run build
 npm start
 ```
 
+## Adding music
+
+Drop audio files into folders under `public/audio`, one folder per
+playlist, for example:
+
+```
+public/audio/lo-fi/track-1.mp3
+public/audio/study/track-1.mp3
+```
+
+The `/api/audio` route scans this folder automatically on each
+request, so playlists appear without touching any code. A folder
+named `lo-fi` is used as the default ambient playlist if one exists,
+otherwise the first playlist found is used. If `public/audio` is
+empty, the speaker shows a "no tracks yet" state instead of an error.
+
 ## Customization
 
-Most of the app content is controlled through the library files, especially:
+Most of the content is controlled through the library files:
 
-- lib/worldConfig.js for room layout and interactive zones
-- lib/music.js for playlists and audio references
-- lib/photos.js for gallery entries and image sources
-- lib/feed.js for personal updates and notes
-- lib/secrets.js for hidden discoveries
-- lib/computer.js for fake desktop content and links
-- lib/rooms.js for the room composition and content blocks
-
-Update these files to personalize the experience without changing the core app structure.
+- `lib/worldConfig.js` for room layout and interactive zones
+- `lib/photos.js` for gallery entries and image sources
+- `lib/feed.js` for the desk's personal updates
+- `lib/mood.js` for the current status shown on the desk
+- `lib/secrets.js` for hidden discoveries
+- `lib/computer.js` for the fake desktop's notes and bookmarks
+- `lib/rooms.js` for the bookshelf and arcade content
 
 ## Controls
 
 - Move with arrow keys or W A S D
-- Click or tap to navigate to a location
-- Press Enter or Space to interact with nearby items
+- Click or tap to look toward a location
+- Click a zone to interact with it
 - Explore the room for hidden interactions and secret sequences
 
 ## Notes
 
-The project includes placeholder assets in public. Replace these files with your own media and update the corresponding source paths in the lib files to make the experience match your own content.
+Image and audio assets are not included in this bundle. Add your own
+files under `public` and the app will pick them up.
 
 ## License
 
-This project is intended for personal or experimental use unless otherwise specified by the repository owner.
+This project is intended for personal or experimental use unless
+otherwise specified by the repository owner.

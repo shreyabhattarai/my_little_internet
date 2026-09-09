@@ -2,26 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import styles from "./page.module.css"
-import RoomCanvas from "@/components/RoomCanvas"
-import ComputerModal from "@/components/Computer/ComputerModal"
-import MusicPlayer from "@/components/MusicPlayer"
-import LifeFeed from "@/components/LifeFeed"
-import BookshelfModal from "@/components/BookShelf/BookshelfModal"
+import RoomCanvas from "@/components/room/RoomCanvas"
+import LifeFeed from "@/components/desk/LifeFeed"
+import BookshelfModal from "@/components/bookshelf/BookshelfModal"
 // Future addition:
-// import WardrobeModal from "@/components/WardRobe/WardrobeModal"
-// import BedModal from "@/components/Bed/BedModal"
-import ArcadeModal from "@/components/Gaming/ArcadeModal"
-// Future addition:
-// import BrainrotModal from "@/components/Gaming/BrainrotModal"
-import UselessPopup from "@/components/PopUp/UselessPopup"
-import SecretModal from "@/components/SecretModal"
+// import WardrobeModal from "@/components/future/WardrobeModal"
+// import BedModal from "@/components/future/BedModal"
+// import BrainrotModal from "@/components/future/BrainrotModal"
+import UselessPopup from "@/components/popup/UselessPopup"
+import SecretModal from "@/components/secret/SecretModal"
 import { SECRET_KEY_SEQUENCE, getEffectivePeriod, getTimePeriod } from "@/lib/worldConfig"
 import { getRandomResponse } from "@/lib/useless"
-import { secretKeySequenceReward, hiddenRoom } from "@/lib/secrets"
-import { playlists as fallbackPlaylists } from "@/lib/music"
+import { secretKeySequenceReward } from "@/lib/secrets"
 import { startDefaultSpeakerLoop } from "@/lib/speakerPlayer"
 
 const FULLSCREEN_STORAGE_KEY = "mli-fullscreen-enabled"
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)"
 
 export default function HomePage() {
   const [openModal, setOpenModal] = useState(null)
@@ -32,8 +28,9 @@ export default function HomePage() {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isFullscreenSupported, setIsFullscreenSupported] = useState(false)
   const [isFullscreenPreferenceEnabled, setIsFullscreenPreferenceEnabled] = useState(true)
-  // true once the room has finished loading its assets, gates the fullscreen button
+  // gates the fullscreen button until the room finishes loading
   const [isRoomReady, setIsRoomReady] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
   // Future addition:
   // const [counterClicks, setCounterClicks] = useState(0)
   // const drawerClicksRef = useRef(0)
@@ -63,7 +60,7 @@ export default function HomePage() {
     try {
       await document.exitFullscreen()
     } catch {
-      // Ignore exit errors and keep button usable.
+      // ignore exit errors, keep the button usable
     }
   }, [])
 
@@ -74,6 +71,20 @@ export default function HomePage() {
     updatePeriod()
     const id = setInterval(updatePeriod, 60000)
     return () => clearInterval(id)
+  }, [])
+
+  // Respect the user's OS level reduced motion preference everywhere in the room
+  useEffect(() => {
+    const query = window.matchMedia(REDUCED_MOTION_QUERY)
+
+    setReducedMotion(query.matches)
+
+    function handleChange(event) {
+      setReducedMotion(event.matches)
+    }
+
+    query.addEventListener("change", handleChange)
+    return () => query.removeEventListener("change", handleChange)
   }, [])
 
   useEffect(() => {
@@ -127,22 +138,17 @@ export default function HomePage() {
     document.body.dataset.theme = activePeriod
   }, [activePeriod])
 
+  // starts the ambient loop on first interaction
   useEffect(() => {
-    async function hydrateLibraryAndRetryDefaultAudio() {
-      let sourcePlaylists = fallbackPlaylists
-
+    async function loadPlaylistsAndStart() {
       try {
         const response = await fetch("/api/audio")
         const data = await response.json()
-
-        if (Array.isArray(data.playlists) && data.playlists.length > 0) {
-          sourcePlaylists = data.playlists
-        }
+        const sourcePlaylists = Array.isArray(data.playlists) ? data.playlists : []
+        startDefaultSpeakerLoop(sourcePlaylists)
       } catch {
-        sourcePlaylists = fallbackPlaylists
+        // no audio library available yet, stay silent
       }
-
-      startDefaultSpeakerLoop(sourcePlaylists)
     }
 
     function handleFirstStep() {
@@ -151,10 +157,7 @@ export default function HomePage() {
       }
 
       defaultAudioStartedRef.current = true
-
-      // Must run inside the gesture event stack so browsers allow playback.
-      startDefaultSpeakerLoop(fallbackPlaylists)
-      void hydrateLibraryAndRetryDefaultAudio()
+      void loadPlaylistsAndStart()
     }
 
     window.addEventListener("pointerdown", handleFirstStep, { once: true })
@@ -255,18 +258,16 @@ export default function HomePage() {
         onZoneModal={handleZoneModal}
         onZoneUseless={handleZoneUseless}
         period={activePeriod}
+        reducedMotion={reducedMotion}
         onReady={handleRoomReady}
         onOverridePeriod={setWindowOverride}
       />
 
-      {openModal === "computer" && <ComputerModal onClose={() => setOpenModal(null)} />}
-      {openModal === "music" && <MusicPlayer onClose={() => setOpenModal(null)} />}
       {openModal === "feed" && <LifeFeed onClose={() => setOpenModal(null)} />}
       {openModal === "bookshelf" && <BookshelfModal onClose={() => setOpenModal(null)} />}
-      {/* Future addition: wardrobe and bed modals */}
+      {/* Future addition: wardrobe, bed and internet modals */}
       {/* {openModal === "wardrobe" && <WardrobeModal onClose={() => setOpenModal(null)} />} */}
       {/* {openModal === "bed" && <BedModal onClose={() => setOpenModal(null)} />} */}
-      {/* Future addition: internet modal */}
       {/* {openModal === "brainrot" && <BrainrotModal onClose={() => setOpenModal(null)} />} */}
       {popup && <UselessPopup message={popup} onDone={() => setPopup(null)} />}
       {secret && <SecretModal secret={secret} onClose={() => setSecret(null)} />}

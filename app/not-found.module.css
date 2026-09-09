@@ -1,0 +1,112 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--color-bg);
+  color: var(--color-cream);
+  overflow-y: auto;
+}
+
+.card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  padding: 32px 26px;
+  border: 2px solid var(--color-panel-border);
+  border-radius: var(--radius-md);
+  background: var(--color-panel);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  animation: cardIn 480ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.lamp {
+  display: block;
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-lamp), transparent 70%);
+  filter: blur(2px);
+  animation: flicker 2.6s ease-in-out infinite;
+}
+
+.code {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: 34px;
+  color: var(--color-lamp);
+  letter-spacing: 0.05em;
+}
+
+.title {
+  margin: 10px 0 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-cream);
+}
+
+.text {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--button-bg);
+  border: 1px solid var(--button-border);
+  color: var(--button-text);
+  box-shadow: var(--button-shadow);
+  text-decoration: none;
+  font-size: 14px;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-lamp);
+  background: var(--button-bg-hover);
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 420px) {
+  .card {
+    padding: 26px 18px;
+  }
+
+  .code {
+    font-size: 28px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .lamp {
+    animation: none;
+  }
+}
